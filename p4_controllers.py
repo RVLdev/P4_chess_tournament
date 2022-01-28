@@ -289,6 +289,7 @@ class MatchController:
                       match_player2,
                       player2_score)
         match.create_match()
+        Match.update_match_id()
         return match
 
     """ TRANSFERE DANS ROUNDCONTROLLER

@@ -150,11 +150,10 @@ class Match:
         return Match()
 
     def update_match_id(self):
-        """ update player_id to be = doc_id """
+        """ update match_id to be = doc_id """
         new_match_id = self.matches_db.get(self.Thematch.m_id == 0)
         match_id = new_match_id.doc_id
         self.matches_db.update({'p_id': self.match_id}, doc_ids=[match_id])
-
 
     def update_players_scores(self, match_id, player1_score, player2_score):
         self.matches_db.update({'score_player1': player1_score},
