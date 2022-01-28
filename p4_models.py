@@ -1,4 +1,4 @@
-from tinydb import TinyDB
+from tinydb import Query, TinyDB
 from datetime import datetime
 
 
@@ -26,6 +26,7 @@ class Tournament:
 
         """creation of a database for tournaments """
         self.db = TinyDB('db.json')
+        self.Tournmt = Query()
         self.tournaments_db = self.db.table('tournaments_db')
 
     def create_tournament(self):
@@ -48,9 +49,13 @@ class Tournament:
         self.tournaments_db.get(doc_id=tournament_id)
         return Tournament()
 
-    def update_tournament_id(self, tournament_id):
+    def update_tournament_id(self):
+        """ default new tournament id = 0
+        Update tournament_id of a new tournament with DB doc_id value """
+        new_tournmt_id = self.tournaments_db.get(self.Tournmt.t_id == 0)
+        tournament_id = new_tournmt_id.doc_id
         self.tournaments_db.update({'t_id': self.tournament_id},
-                                   doc_id=tournament_id)
+                                   doc_ids=[tournament_id])
 
     def delete_tournament(self, tournament_id):
         self.tournaments_db.remove(doc_id=tournament_id)
@@ -67,6 +72,7 @@ class Round:
 
         """creation of a database for rounds """
         self.db = TinyDB('db.json')
+        self.Theround = Query()
         self.rounds_db = self.db.table('rounds_db')
 
     def create_round(self):
@@ -77,6 +83,12 @@ class Round:
                                'start_datentime': self.start_date_time,
                                'end_datentime': self.end_date_time,
                                })
+
+    def update_round_id(self):
+        """ update round_id to be = doc_id """
+        new_round_id = self.rounds_db.get(self.Theround.r_id == 0)
+        round_id = new_round_id.doc_id
+        self.rounds_db.update({'p_id': self.round_id}, doc_ids=[round_id])
 
     # start_date_time DOIT ETRE "renseigné" A LA CREATION DE L'OBJET ROUND
     def start_round(self):
@@ -118,13 +130,14 @@ class Match:
 
         """creation of a database for matches """
         self.db = TinyDB('db.json')
+        self.Thematch = Query()
         self.matches_db = self.db.table('matches_db')
 
     def create_match(self, match_player1, match_player2):
         """ create (and save) a match"""
         self.matches_db.insert(
             {
-                'match_id': self.match_id,
+                'm_id': self.match_id,
                 'chess_player1': match_player1,
                 'score_player1': self.player1_score,
                 'chess_player2': match_player2,
@@ -135,6 +148,13 @@ class Match:
     def read_match(self, match_id):
         self.matches_db.get(doc_id=match_id)
         return Match()
+
+    def update_match_id(self):
+        """ update player_id to be = doc_id """
+        new_match_id = self.matches_db.get(self.Thematch.m_id == 0)
+        match_id = new_match_id.doc_id
+        self.matches_db.update({'p_id': self.match_id}, doc_ids=[match_id])
+
 
     def update_players_scores(self, match_id, player1_score, player2_score):
         self.matches_db.update({'score_player1': player1_score},
@@ -162,13 +182,14 @@ class Player:
 
         """creation of a database for players """
         self.db = TinyDB('db.json')
+        self.Theplayer = Query()
         self.players_db = self.db.table('players_db')
 
     def create_player(self):
         """ create (and save to a database) a player """
         self.players_db.insert(
             {
-                'p_id': self.player_id,
+                'p_id': self.player_id, #tinyDB doc_id de l'instance
                 'p_name': self.player_name,
                 'p_firstname': self.player_first_name,
                 'p_birthdate': self.player_birth_date,
@@ -183,8 +204,10 @@ class Player:
         # db renvoie un dictionnaire idem "create"
         return Player()
 
-    def update_player_id(self, player_id):
+    def update_player_id(self):
         """ update player_id to be = doc_id """
+        new_player_id = self.players_db.get(self.Theplayer.p_id == 0)
+        player_id = new_player_id.doc_id
         self.players_db.update({'p_id': self.player_id}, doc_ids=[player_id])
 
     @classmethod

@@ -30,6 +30,11 @@ class TournamentView:
     def ask_time_control(self):
         print('saisissez bullet, blitz ou coup rapide : ')
 
+    @classmethod
+    def ask_tournament_rounds_qty(self):
+        print('Le nombre de tours par défaut est 4')
+        print('Saisissez le nombre de tours souhaité : ')
+
 
 class RoundView:
     def __init__(self):

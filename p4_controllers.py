@@ -15,18 +15,20 @@ class TournamentController:
         self.tournament_players_list = []
         self.rounds_list = []
 
-    def create_new_tournament(self):
+    def create_new_tournament(self, tournament_id=0):
         """create one tournament"""
         tournament = Tournament(
+            tournament_id,
             self.ask_tournament_name(),
             self.ask_tournament_place(),
             self.ask_tournament_date(),
             self.create_tournament_players_list(),
             self.ask_tournament_description(),
-            self.ask_time_control()
+            self.ask_time_control(),
+            self.ask_tournament_rounds_qty()
             )
-        tournament.create_tournament()  # enregistrement en BDD
-
+        tournament.create_tournament()
+        Tournament.update_tournament_id()
         return tournament
 
     def ask_tournament_name(self):
@@ -66,49 +68,101 @@ class TournamentController:
         return self.tournament_players_list
 
     def ask_tournament_description(self):
+        """ get tournament description from User"""
         TournamentView.ask_tournament_description()
         tournament_description = input()
         return tournament_description
 
     def ask_time_control(self):
+        """ Get time control information from User"""
         TournamentView.ask_time_control()
         time_control = input()
         return time_control
 
+    def ask_tournament_rounds_qty(self):
+        """ Get tournament_rounds_qty from User"""
+        TournamentView.ask_tournament_rounds_qty()
+        tournament_rounds_qty = input()
+        return tournament_rounds_qty
+
     def sort_tournament_players_list_by_rank(self):
+        """sort by rank tournament players list"""
         rank_sorted_p_list = sorted(self.tournament_players_list,
                                   key=lambda k: k['p_rank'])
         print(rank_sorted_p_list)
         return rank_sorted_p_list
 
     def sort_tournament_players_list_by_points(self, rank_sorted_p_list):
+        """ get tournament players list sorted by rank and total points """
         # commencer par tri par rank puis trier par points => les "mêmes pts" seront déjà triés par rank !
         points_sorted_p_list = sorted(rank_sorted_p_list,
-                                      key=lambda k: k['p_total_points'])
+                                      key=lambda k: k['p_total_points'], reverse = True)
         print(points_sorted_p_list)
         return points_sorted_p_list
 
-    """ TRANSFERE DANS ROUNDCONTROLLER
-    #  calcul à faire + POSITION A VERIFIER (TOURNOI ou PLAYER)
-    # update dans players_db et dans tournament_players_list
+
+    ##   A TRANSFERER DS TOURNOI - CALCUL A FAIRE et code à compléter/corriger
+    # update NB TOTAL POINTS DU JOUEUR ds players_db & tournament_players_list
     def update_player_points_qty(self, player_id):
         # first calculate then update p_total_points
         # calcul ?
-        Player.update_p_total_points(self, player_id, Player.player_points_qty)"""
+        nbr_players = len(Tournament.tournament_players_list)
+        for j in range(0, nbr_players):
+            player_points = ' calcul???? '
+        # udate t_players_list
+        Tournament.tournament_players_list[j]['p_total_points'] = player_points
+
+        # update players_db
+        Player.update_p_total_points(player_id, Player.player_points_qty)
+
+
+    def create_first_round_matches(self, rank_sorted_p_list):
+        """ create matches for first round """
+        matches_qty = len(rank_sorted_p_list)/2
+        for i in range(0, matches_qty):
+            RoundController.r_matches_list.append(
+                Match(
+                        rank_sorted_p_list[i],
+                        rank_sorted_p_list[i+matches_qty]
+                     )
+            )
+
+    def create_next_round_matches(self, points_sorted_p_list):
+        """ create matches for round > 1 """
+        # A COMPLETER : COMPARER nlles paires J1-J2 avec celles de la
+        # liste r_matches_list + CORRIGER ci-dessous
+        matches_qty = len(points_sorted_p_list)/2
+        for i in range(0, matches_qty):
+            RoundController.r_matches_list.append(
+                Match(
+                        points_sorted_p_list[i],
+                        points_sorted_p_list[i+1] # i+1 = joueur suivant ds liste totalemt triée
+                     )
+            )
+
+    # alimente la liste de matchs (initialement vide)
+    def add_match_to_r_matches_list(self, rank_sorted_p_list):
+        """add new match to round matches list"""
+        if len(Round.rounds_db) >= 1:
+            self.create_next_round_matches(rank_sorted_p_list)
+        else:
+            self.create_first_round_matches()
+        return RoundController.r_matches_list
 
 
 class RoundController:
     def __init__(self):
-        self.r_matches_list = []
+        self.r_matches_list = [] 
 
     def create_round(self, round_id=0, end_date_time=0):
         """ create a round """
         round = Round(round_id,
-                      self.give_round_name,
-                      self.get_r_matches_list,
-                      self.set_start_date_time,
+                      self.give_round_name(),
+                      self.fill_r_matches_list(),
+                      self.set_start_date_time(),
                       end_date_time)
         round.create_round()
+        Round.update_round_id()
         return round
 
     def give_round_name(self):
@@ -117,13 +171,13 @@ class RoundController:
         round_name = f'{"Round"}{round_nbr+1}'
         return round_name
 
-    # BIFURCATION 1ER ROUND / ROUNDS SUIVANTS
-    def get_r_matches_list(self):
-        if len(Round.rounds_db) >= 1:
-            self.create_next_round_matches()
-        else:
-            self.create_first_round_matches()
+    def fill_r_matches_list(self):
+        """ fill empty round matches list """
+        TournamentController.add_match_to_r_matches_list(TournamentController.rank_sorted_p_list)
+        return self.r_matches_list
 
+
+    """ vu : TRANSFEREES DS TOURNOI
     def create_first_round_matches(self):
         matches_qty = len(TournamentController.rank_sorted_p_list)/2
         for i in range(0, matches_qty):
@@ -146,19 +200,22 @@ class RoundController:
                         TournamentController.points_sorted_p_list[i+1] # i+1 = joueur suivant ds liste totalemt triée
                      )
             )
-        return self.r_matches_list
+        return self.r_matches_list"""
 
     def set_start_date_time(self):
+        """ give starting date & time of a round """
         round_start = Round.start_round()
         print(round_start)
         return round_start
 
     def end_round(self):
+        """ give closing date & time of a round """
         round_end = Round.close_round() # ATTENTION MODEL 'def close_round()' à vérifier
         print(round_end)
 
     # update scores in r_matches_list AND matches_db
     def update_r_match_score(self):
+        """ update round matches players'score"""
         nbr_matches = len(self.r_matches_list)
         for i in range(0, nbr_matches):
             player1_score = self.ask_player1_score(i, self.r_matches_list)
@@ -172,6 +229,7 @@ class RoundController:
             Match.update_players_scores(match_id, player1_score, player2_score)
 
     def ask_player1_score(self, i):
+        """ get player1 's score"""
         # print "match PLAYER1-NAME / PLAYER2-NAME"
         print('match ' + self.r_matches_list[i]['chess_player1']['p_name']
                        + " / "
@@ -187,6 +245,7 @@ class RoundController:
         return player1_score
 
     def ask_player2_score(self, i):
+        """ get player2 's score"""
         # print "match PLAYER1-NAME / PLAYER2-NAME"
         print('match ' + self.r_matches_list[i]['chess_player1']['p_name']
                        + " / "
@@ -201,20 +260,21 @@ class RoundController:
                             + ' score = ' + player2_score)
         return player2_score
 
-    #  CALCUL A FAIRE et code à compléter/corriger
+""" TRANSFERE DS TOURNOI 
+    # CALCUL A FAIRE et code à compléter/corriger
     # update NB TOTAL POINTS DU JOUEUR ds players_db & tournament_players_list
     def update_player_points_qty(self, player_id):
         # first calculate then update p_total_points
         # calcul ?
         nbr_players = len(Tournament.tournament_players_list)
         for j in range(0, nbr_players):
-            player_points = 'calcul???? '
+            player_points = ' calcul???? '
         # udate t_players_list
         Tournament.tournament_players_list[j]['p_total_points'] = player_points
 
         # update players_db
         Player.update_p_total_points(player_id, Player.player_points_qty)
-
+"""
 
 class MatchController:
     def __init__(self):
@@ -271,7 +331,8 @@ class PlayerController:
             self.ask_player_ranking(),
             player_points_qty=0
         )
-        player.create_player()  # renvoie vers enregistrement en BDD (Model)
+        player.create_player()
+        Player.update_player_id()
         return player
 
     def ask_player_name(self):
