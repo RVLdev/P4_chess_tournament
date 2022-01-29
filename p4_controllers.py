@@ -15,6 +15,8 @@ class TournamentController:
         self.tournament_players_id_list = []
         self.tournament_rounds_id_list = []
         self.t_full_players_list = []
+        self.rank_sorted_p_list = []
+        self.points_sorted_p_list = []
 
     def create_new_tournament(self, tournament_id=0):
         """create one tournament"""
@@ -175,15 +177,20 @@ class TournamentController:
                      )
             )
 
-    # alimente la liste de matchs (initialement vide) => contient des joueurs 'complets' (pas liste de doc_ids)
+    # contient des joueurs 'complets' (pas liste de doc_ids)
     def add_match_to_r_matches_list(self, 
                                     rank_sorted_p_list,
                                     points_sorted_p_list):
-        """add new match to round matches list"""
-        if len(self.tournament_rounds_id_list) >= 1:
-            self.create_next_round_matches(points_sorted_p_list)
-        else:
-            self.create_first_round_matches(rank_sorted_p_list)
+        """add new match to round's matches' list"""
+        # 1 match <=> 2 players
+        # for each round, number of matches = number of players/2
+        matches_nb = (len(self.tournament_players_id_list))/2
+
+        if len(self.r_matches_list) < matches_nb:
+            if len(self.tournament_rounds_id_list) >= 1:
+                self.create_next_round_matches(points_sorted_p_list)
+            else:
+                self.create_first_round_matches(rank_sorted_p_list)
         return RoundController.r_matches_list
 
 
@@ -195,7 +202,7 @@ class RoundController:
         """ create a round """
         round = Round(round_id,
                       self.give_round_name(),
-                      self.create_r_matches_list(),  # contient des joueurs 'complets' (pas liste de doc_ids)
+                      self.create_r_matches_list(),
                       self.set_start_date_time(),
                       end_date_time)
         round.create_round()
@@ -208,16 +215,12 @@ class RoundController:
         round_name = f'{"Round"}{round_nbr+1}'
         return round_name
 
-    def create_r_matches_list(self, TournamentController.rank_sorted_p_list):
-        """ fill empty round matches list """
-        # 1 match <=> 2 players
-        # for each round, number of matches = number of players/2
-        matches_nb = (len(TournamentController.tournament_players_id_list))/2
-
-        if len(self.r_matches_list) < matches_nb:
-            TournamentController.add_match_to_r_matches_list(
-                TournamentController.rank_sorted_p_list)
-        return self.r_matches_list
+    def create_r_matches_list(self):
+        """ launch creation of the round's matches'list """
+        r_matches_list = TournamentController.add_match_to_r_matches_list(
+                TournamentController.rank_sorted_p_list,
+                TournamentController.points_sorted_p_list)
+        return r_matches_list
 
     def set_start_date_time(self):
         """ give starting date & time of a round """
