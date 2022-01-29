@@ -5,24 +5,21 @@ from datetime import datetime
 class Tournament:
     """ defines an object 'tournament' : (shape, characteristics)"""
     def __init__(self, tournament_id, tournament_name, tournament_place,
-                 tournament_date, tournament_players_list,
-                 tournament_description,
-                 tournament_time_control,
-                 tournament_rounds_list=['round1', 'round2', 'round3',
-                                         'round4'],
-                 tournament_rounds_qty=4,):
+                 tournament_date, tournament_description,
+                 tournament_time_control, tournament_rounds_id_list,
+                 tournament_players_id_list, tournament_rounds_qty=4,):
 
         self.tournament_id = tournament_id
         self.tournament_name = tournament_name
         self.tournament_place = tournament_place
         self.tournament_date = tournament_date
-        self.tournament_rounds_list = tournament_rounds_list
-        self.tournament_players_list = tournament_players_list
         self.tournament_description = tournament_description
         self.tournament_time_control = tournament_time_control
-        self.tournament_rounds_qty = tournament_rounds_qty
+        self.tournament_rounds_qty = tournament_rounds_qty                      
+        self.tournament_players_id_list = tournament_players_id_list
+        self.tournament_rounds_id_list = tournament_rounds_id_list
 
-        tournament_rounds_list = []
+        tournament_rounds_id_list = []
 
         """creation of a database for tournaments """
         self.db = TinyDB('db.json')
@@ -37,11 +34,11 @@ class Tournament:
                 't_name': self.tournament_name,
                 't_place': self.tournament_place,
                 't_date': self.tournament_date,
-                't_players_list': self.tournament_players_list,
                 't_description': self.tournament_description,
                 't_time_control': self.tournament_time_control,
-                't_rounds_list': self.tournament_rounds_list,
-                't_round_qty': self.tournament_rounds_qty
+                't_round_qty': self.tournament_rounds_qty,
+                't_players_list': self.tournament_players_id_list,
+                't_rounds_list': self.tournament_rounds_id_list,                             
             }
             )
 
