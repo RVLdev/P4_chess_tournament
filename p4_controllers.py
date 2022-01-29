@@ -145,6 +145,7 @@ class TournamentController:
         # update players_db
         Player.update_p_total_points(player_id, Player.player_points_qty)
 
+    # CALCULER PAIRES != celles des tours précédents
     def sort_tournament_players_id_list_by_points(self, rank_sorted_p_list):
         """ get tournament players list sorted by rank and total points """
         # commencer par tri par rank puis trier par points => les "mêmes pts" seront déjà triés par rank !
@@ -287,7 +288,7 @@ class RoundController:
         return player2_score
 
 
-class MatchController:  # INUTILE ? (pas utilisé ds code v28/01)
+class MatchController:
     def __init__(self):
         pass
 
@@ -295,9 +296,9 @@ class MatchController:  # INUTILE ? (pas utilisé ds code v28/01)
                      player1_score=0, player2_score=0):
         """create one match"""
         match = Match(match_id,
-                      match_player1,
+                      match_player1,  # player's doc_id
                       player1_score,
-                      match_player2,
+                      match_player2,  # player's doc_id
                       player2_score)
         match.create_match()
         Match.update_match_id()
