@@ -17,6 +17,10 @@ class TournamentController:
         self.t_full_players_list = []
         self.rank_sorted_p_list = []
         self.points_sorted_p_list = []
+        self.points_sorted_p_id_list = []
+        self.m_list= []  # list of matches from DB
+        self.previous_pairs_list = []  # list of previous matches pairs of players
+
 
     def create_new_tournament(self, tournament_id=0):
         """create one tournament"""
@@ -101,7 +105,7 @@ class TournamentController:
         Round.update_round_id()
         self.tournament_rounds_id_list.append(new_round.doc_id)
 
-    def sort_tournament_players_id_list_by_rank(self):
+    def sort_tournament_players_list_by_rank(self):
         """sort by rank tournament players list"""
         # récupère la liste complète des éléments à trier
         for doc in self.tournament_players_id_list:
@@ -145,14 +149,63 @@ class TournamentController:
         # update players_db
         Player.update_p_total_points(player_id, Player.player_points_qty)
 
+
     # CALCULER PAIRES != celles des tours précédents
+    
     def sort_tournament_players_id_list_by_points(self, rank_sorted_p_list):
         """ get tournament players list sorted by rank and total points """
-        # commencer par tri par rank puis trier par points => les "mêmes pts" seront déjà triés par rank !
         points_sorted_p_list = sorted(rank_sorted_p_list,
                                       key=lambda k: k['p_total_points'], reverse = True)
-        print(points_sorted_p_list)  # contient des joueurs 'complets' (pas liste de doc_ids)
-        return points_sorted_p_list
+        print(points_sorted_p_list)  # 'full' players (not only doc_ids)
+        
+        for p in points_sorted_p_list:
+            self.points_sorted_p_id_list.append(points_sorted_p_list[p]['p_id'])
+
+        return self.points_sorted_p_id_list  # players'doc_ids
+
+    """ For rounds next to 1st round, matches players must be sorted
+    by rank and total points. It is also  required to check that 
+    new pairs of players are different from previous matches pairs."""
+
+    def create_matches_players_id_list(self):
+        # get list of previous matches pairs of players
+        for item in Match.matches_db:
+            self.m_list.append(item)
+
+        nb_matchs = len(self.m_list)
+        for n in range(0, nb_matchs):
+            self.previous_pairs_list.append([self.m_list[n]['chess_player1'],  #  player's doc_id
+                                            self.m_list[n]['chess_player2']])
+        return self.previous_pairs_list
+
+    def compare_matches_p_pairs(self, points_sorted_p_id_list):
+        next_round_p_pairs_list = []  # list of matches pairs of players for next matches
+        i=1
+        def create_test_players_pair(i, points_sorted_p_id_list): 
+            #create pair of players to be tested
+            test_pair = [points_sorted_p_id_list[0], points_sorted_p_id_list[i]]
+            return test_pair
+
+        while len(points_sorted_p_id_list) > 0:
+            testing_pair = create_test_players_pair(i, points_sorted_p_id_list)
+            if testing_pair in self.previous_pairs_list:
+                # ALREADY PLAYED pair. New testing_pair :
+                i += 1
+                testing_pair = create_test_players_pair(i)
+            else:
+                # UNIQUE pair of players to be added to next round matches
+                next_round_p_pairs_list.append(testing_pair)
+                # update points_sorted_p_id_list
+                del points_sorted_p_id_list[0]
+                del points_sorted_p_id_list[i-1]
+                
+                if len(points_sorted_p_id_list) > 0:
+                    # new testing_pair:
+                    i = 1
+                    testing_pair = create_test_players_pair(i)
+                else:
+                    return next_round_p_pairs_list
+        return next_round_p_pairs_list
 
     def create_first_round_matches(self, rank_sorted_p_list):  #  MATCHS 
         """ create matches for first round """
