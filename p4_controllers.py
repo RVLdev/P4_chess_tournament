@@ -18,9 +18,8 @@ class TournamentController:
         self.rank_sorted_p_list = []
         self.points_sorted_p_list = []
         self.points_sorted_p_id_list = []
-        self.m_list= []  # list of matches from DB
+        self.m_list = []  # list of matches from DB
         self.previous_pairs_list = []  # list of previous matches pairs of players
-
 
     def create_new_tournament(self, tournament_id=0):
         """create one tournament"""
@@ -98,7 +97,7 @@ class TournamentController:
         while len(self.tournament_rounds_id_list) < tournament_rounds_qty:
             self.add_round_to_t_rounds_list()
         return self.tournament_rounds_id_list
-    
+
     def add_round_to_t_rounds_list(self):
         """add new round to round matches list"""
         new_round = Round.create_round()
@@ -111,12 +110,12 @@ class TournamentController:
         for doc in self.tournament_players_id_list:
             t_full_player = Player.players_db.get(doc_id=doc)
             self.t_full_players_list.append(t_full_player)
-        
+
         rank_sorted_p_list = sorted(self.t_full_players_list,
-                                  key=lambda k: k['p_rank'])
+                                    key=lambda k: k['p_rank'])
         print(rank_sorted_p_list)  # contient des joueurs 'complets' (pas liste de doc_ids)
         return rank_sorted_p_list
-  
+
     def update_player_points_qty(self, player_id):  # NEW 28/1 A RELIRE
         """ calculate and update players total points"""
         nbr_players = len(Tournament.tournament_players_id_list)
@@ -124,47 +123,45 @@ class TournamentController:
         for j in range(0, nbr_players/2):
             # Get match 1st player's doc_id and its points nb before match (previous_points_pl1)
             match_pl1_doc_id = RoundController.r_matches_list[j]['chess_player1']
-            player1 = Player.players_db.get(doc_id=match_pl1_doc_id)  # ou doc_ids = []
+            player1 = Player.players_db.get(doc_id=match_pl1_doc_id)  # ou doc_ids=[]
             previous_points_pl1 = player1['p_total_points']
-            
+
             # Get match 1st player's new points (match score)
             new_points_pl1 = RoundController.player1_score
-            
+
             # calculate match 1st player's new total of points & update its points in DB
             new_total_points_pl1 = new_points_pl1 + previous_points_pl1
             Player.players_db.update({'p_total_points': new_total_points_pl1},
-                                     doc_id=match_pl1_doc_id)  # ou doc_ids = []
-            
+                                     doc_id=match_pl1_doc_id)  # ou doc_ids=[]
+
             # do the same with match 2nd player
             match_pl2_doc_id = RoundController.r_matches_list[j]['chess_player2']
-            player2 = Player.players_db.get(doc_id=match_pl2_doc_id)  # ou doc_ids = []
+            player2 = Player.players_db.get(doc_id=match_pl2_doc_id)  # ou doc_ids=[]
             previous_points_pl2 = player2['p_total_points']
-            
+
             new_points_pl2 = RoundController.player2_score
             new_total_points_pl2 = new_points_pl2 + previous_points_pl2
             Player.players_db.update({'p_total_points': new_total_points_pl2},
-                                     doc_id=match_pl2_doc_id)  # ou doc_ids = []
-        
+                                     doc_id=match_pl2_doc_id)  # ou doc_ids=[]
 
         # update players_db
         Player.update_p_total_points(player_id, Player.player_points_qty)
 
-
     # CALCULER PAIRES != celles des tours précédents
-    
     def sort_tournament_players_id_list_by_points(self, rank_sorted_p_list):
         """ get tournament players list sorted by rank and total points """
         points_sorted_p_list = sorted(rank_sorted_p_list,
-                                      key=lambda k: k['p_total_points'], reverse = True)
+                                      key=lambda k: k['p_total_points'],
+                                      reverse=True)
         print(points_sorted_p_list)  # 'full' players (not only doc_ids)
-        
+
         for p in points_sorted_p_list:
             self.points_sorted_p_id_list.append(points_sorted_p_list[p]['p_id'])
 
         return self.points_sorted_p_id_list  # players'doc_ids
 
     """ For rounds next to 1st round, matches players must be sorted
-    by rank and total points. It is also  required to check that 
+    by rank and total points. It is also  required to check that
     new pairs of players are different from previous matches pairs."""
 
     def create_matches_players_id_list(self):
@@ -174,16 +171,18 @@ class TournamentController:
 
         nb_matchs = len(self.m_list)
         for n in range(0, nb_matchs):
-            self.previous_pairs_list.append([self.m_list[n]['chess_player1'],  #  player's doc_id
+            self.previous_pairs_list.append([self.m_list[n]['chess_player1'],  # player's doc_id
                                             self.m_list[n]['chess_player2']])
         return self.previous_pairs_list
 
     def compare_matches_p_pairs(self, points_sorted_p_id_list):
         next_round_p_pairs_list = []  # list of matches pairs of players for next matches
-        i=1
-        def create_test_players_pair(i, points_sorted_p_id_list): 
-            #create pair of players to be tested
-            test_pair = [points_sorted_p_id_list[0], points_sorted_p_id_list[i]]
+        i = 1
+
+        def create_test_players_pair(i, points_sorted_p_id_list):
+            # create pair of players to be tested
+            test_pair = [points_sorted_p_id_list[0],
+                         points_sorted_p_id_list[i]]
             return test_pair
 
         while len(points_sorted_p_id_list) > 0:
@@ -198,7 +197,7 @@ class TournamentController:
                 # update points_sorted_p_id_list
                 del points_sorted_p_id_list[0]
                 del points_sorted_p_id_list[i-1]
-                
+
                 if len(points_sorted_p_id_list) > 0:
                     # new testing_pair:
                     i = 1
@@ -207,7 +206,7 @@ class TournamentController:
                     return next_round_p_pairs_list
         return next_round_p_pairs_list
 
-    def create_first_round_matches(self, rank_sorted_p_list):  #  MATCHS 
+    def create_first_round_matches(self, rank_sorted_p_list):  # MATCHS
         """ create matches for first round """
         matches_qty = len(rank_sorted_p_list)/2
         for i in range(0, matches_qty):
@@ -218,7 +217,7 @@ class TournamentController:
                      )
             )
 
-    def create_next_round_matches(self, points_sorted_p_list):  #  MATCHS 
+    def create_next_round_matches(self, points_sorted_p_list):  # MATCHS
         """ create matches for round > 1 """
         # A COMPLETER : COMPARER nlles paires J1-J2 avec celles de la
         # liste r_matches_list + CORRIGER ci-dessous
@@ -232,7 +231,7 @@ class TournamentController:
             )
 
     # contient des joueurs 'complets' (pas liste de doc_ids)
-    def add_match_to_r_matches_list(self, 
+    def add_match_to_r_matches_list(self,
                                     rank_sorted_p_list,
                                     points_sorted_p_list):
         """add new match to round's matches' list"""
@@ -284,7 +283,7 @@ class RoundController:
 
     def end_round(self):
         """ give closing date & time of a round """
-        round_end = Round.close_round() # ATTENTION MODEL 'def close_round()' à vérifier
+        round_end = Round.close_round()  # ATTENTION MODEL 'def close_round()' à vérifier
         print(round_end)
 
     # update scores in r_matches_list AND matches_db
@@ -310,18 +309,19 @@ class RoundController:
                        + self.r_matches_list[i]['chess_player2']['p_name'])
 
         # print "joueur 1 : PLAYER1-NAME"
-        print('joueur 1 : ' + self.r_matches_list[i]['chess_player1']['p_name'])
-        
+        print('joueur1: ' + self.r_matches_list[i]['chess_player1']['p_name'])
+
         MatchView.ask_score_player()
         player1_score = input('saisissez son score (0 ou 0.5 ou 1) : ')
-        
-        # dico qui associe player doc_id et new points 
+
+        # dico qui associe player doc_id et new points
         pl_doc_id = self.r_matches_list[i]['chess_player1']
-        new_points_player1 = {'pl_doc_id' : pl_doc_id, 'newpoints': player1_score}
-        
-        print('joueur 1 : ' + self.r_matches_list[i]['chess_player1']['p_name']
-                            + ' score = ' + player1_score)
-        
+        new_points_player1 = {'pl_doc_id': pl_doc_id,
+                              'newpoints': player1_score}
+
+        print('joueur1 : ' + self.r_matches_list[i]['chess_player1']['p_name']
+                           + ' score = ' + player1_score)
+
         return player1_score
 
     def ask_player2_score(self, i):
@@ -332,12 +332,12 @@ class RoundController:
                        + self.r_matches_list[i]['chess_player2']['p_name'])
 
         # print "joueur 2 : PLAYER2-NAME"
-        print('joueur 2 : ' + self.r_matches_list[i]['chess_player2']['p_name'])
+        print('joueur2 : '+self.r_matches_list[i]['chess_player2']['p_name'])
 
         MatchView.ask_score_player()
         player2_score = input('saisissez son score (0 ou 0.5 ou 1) : ')
-        print('joueur 2 : ' + self.r_matches_list[i]['chess_player2']['p_name']
-                            + ' score = ' + player2_score)
+        print('joueur2 : ' + self.r_matches_list[i]['chess_player2']['p_name']
+                           + ' score = ' + player2_score)
         return player2_score
 
 
@@ -420,8 +420,8 @@ class PlayerController:
                 Theplayer.p_firstname == search_p_firstname
                 )
             )
-        # Search donne [{}] (liste contenant joueur), 
-        # mais 'get' donne directement le joueur {} 
+        # Search donne [{}] (liste contenant joueur),
+        # mais 'get' donne directement le joueur {}
         print(requested_player)
-        print(requested_player.doc_id)  # DOC_ID du joueur
+        print(requested_player.doc_id)  # player's DOC_ID
         return requested_player.doc_id
