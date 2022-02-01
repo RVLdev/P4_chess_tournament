@@ -176,7 +176,7 @@ class TournamentController:
         return self.previous_pairs_list
 
     def compare_matches_p_pairs(self, points_sorted_p_id_list):
-        next_round_p_pairs_list = []  # list of matches pairs of players for next matches
+        next_round_p_pairs_list = []  # list of pairs of players for next matches
         i = 1
 
         def create_test_players_pair(i, points_sorted_p_id_list):
@@ -217,16 +217,14 @@ class TournamentController:
                      )
             )
 
-    def create_next_round_matches(self, points_sorted_p_list):  # MATCHS
+    def create_next_round_matches(self, next_round_p_pairs_list):  # MATCHS
         """ create matches for round > 1 """
-        # A COMPLETER : COMPARER nlles paires J1-J2 avec celles de la
-        # liste r_matches_list + CORRIGER ci-dessous
-        matches_qty = len(points_sorted_p_list)/2
+        matches_qty = len(next_round_p_pairs_list)
         for i in range(0, matches_qty):
             RoundController.r_matches_list.append(
                 Match(
-                        points_sorted_p_list[i]['p_id'],  # doc_id du match_player1
-                        points_sorted_p_list[i+1]['p_id']  # i+1 = joueur suivant ds liste totalemt triée
+                        next_round_p_pairs_list[i],  # player1 doc_id 
+                        next_round_p_pairs_list[i+1]  # i+1 = next player
                      )
             )
 
