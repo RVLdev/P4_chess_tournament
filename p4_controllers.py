@@ -30,8 +30,8 @@ class TournamentController:
             self.ask_tournament_date(),
             self.ask_tournament_description(),
             self.ask_time_control(),
-            self.ask_tournament_rounds_qty(),
-            self.create_tournament_players_id_list(),  # doc_ids (L65 & 68)
+            self.ask_tournament_rounds_qty(),  # 4 par défaut
+            self.create_tournament_players_id_list(),  # doc_ids
             self.create_tournament_rounds_id_list,  # rounds doc_ids list
             )
         tournament.create_tournament()
@@ -72,25 +72,31 @@ class TournamentController:
         tournament_rounds_qty = input()
         return tournament_rounds_qty
 
-    def create_tournament_players_id_list(self):  # players doc_ids
+    def create_tournament_players_id_list(self):  # A COMPLETER ; players doc_ids
         """ create this tournament's list of 8 players"""
         while len(self.tournament_players_id_list) < 8:
-            self.add_player_to_tournament()
+            TournamentView.ask_for_player_inclusion()
+            player_inclusion = input()
+            if player_inclusion == 'N':
+               return '???'  #      A COMPLETER
+            else:
+                self.add_player_to_tournament()
         print('liste des joueurs du tournoi complète')
         return self.tournament_players_id_list
 
     def add_player_to_tournament(self):
         """ add player to tournament_players_id_list """
-        # check if player in DB
-        requested_player = PlayerController.request_player()
+        # check if player in DB (get player's doc_id)
+        requested_player = PlayerController.request_player(self)
         # if player not in DB, launch its creation and add it to list
         if requested_player is None:
-            newplayer = PlayerController.create_player()
+            print('Merci de saisir à nouveau : ')
+            newplayer = PlayerController.create_player(self, player_id=0)
             Player.update_player_id()
             self.tournament_players_id_list.append(newplayer.doc_id)
         # if player in DB, add it to list
         else:
-            self.tournament_players_id_list.append(requested_player.doc_id)
+            self.tournament_players_id_list.append(requested_player)
         return self.tournament_players_id_list
 
     def create_tournament_rounds_id_list(self, tournament_rounds_qty):  # rounds doc_ids
@@ -98,17 +104,17 @@ class TournamentController:
             self.add_round_to_t_rounds_list()
         return self.tournament_rounds_id_list
 
-    def add_round_to_t_rounds_list(self):
+    def add_round_to_t_rounds_list(self):  # ERREUR cf liste DOC_ID
         """add new round to round matches list"""
         new_round = Round.create_round()
         Round.update_round_id()
-        self.tournament_rounds_id_list.append(new_round.doc_id)
+        self.tournament_rounds_id_list.append(new_round.round_id)  # doc_id
 
     def sort_tournament_players_list_by_rank(self):
         """sort by rank tournament players list"""
         # récupère la liste complète des éléments à trier
-        for doc in self.tournament_players_id_list:
-            t_full_player = Player.players_db.get(doc_id=doc)
+        for pl_id in self.tournament_players_id_list:
+            t_full_player = Player.players_db.get(doc_id=pl_id)
             self.t_full_players_list.append(t_full_player)
 
         rank_sorted_p_list = sorted(self.t_full_players_list,
@@ -164,7 +170,7 @@ class TournamentController:
     by rank and total points. It is also  required to check that
     new pairs of players are different from previous matches pairs."""
 
-    def create_matches_players_id_list(self):
+    def create_prev_matches_players_id_list(self):
         # get list of previous matches pairs of players
         for item in Match.matches_db:
             self.m_list.append(item)
@@ -209,18 +215,18 @@ class TournamentController:
     def create_first_round_matches(self, rank_sorted_p_list):  # MATCHS
         """ create matches for first round """
         matches_qty = len(rank_sorted_p_list)/2
-        for i in range(0, matches_qty):
+        for i in range(0, matches_qty):  # ou utiliser: while r_matches_list < matches_qty
             RoundController.r_matches_list.append(
                 Match(
-                        rank_sorted_p_list[i]['p_id'],  # doc_id du match_player1
-                        rank_sorted_p_list[i+matches_qty]['p_id']  # doc_id du match_player2
+                        rank_sorted_p_list[i]['p_id'],  # match_player1 doc_id 
+                        rank_sorted_p_list[i+matches_qty]['p_id']  # match_player2 doc_id
                      )
             )
 
     def create_next_round_matches(self, next_round_p_pairs_list):  # MATCHS
         """ create matches for round > 1 """
         matches_qty = len(next_round_p_pairs_list)
-        for i in range(0, matches_qty):
+        for i in range(0, matches_qty):  # ou utiliser: while r_matches_list < matches_qty
             RoundController.r_matches_list.append(
                 Match(
                         next_round_p_pairs_list[i],  # player1 doc_id 
@@ -249,6 +255,7 @@ class RoundController:
     def __init__(self):
         self.r_matches_list = []  # contiendra joueurs'complets'(pas doc_ids)
 
+    # c'est l'utilisateur qui "crée" le tour => def ask_user_round_launch()
     def create_round(self, round_id=0, end_date_time=0):
         """ create a round """
         round = Round(round_id,
@@ -260,12 +267,22 @@ class RoundController:
         Round.update_round_id()
         return round
 
+    def ask_user_round_launch(self):  # new v 01/02/22
+        RoundView.launch_round()
+        launch_validation = input()
+        return launch_validation
+        """ Pour L'INTERFACE :
+        if launch_validation == O:
+            self.create_round(self, round_id=0, end_date_time=0)
+        else:
+            ??? retour menu supérieur ?"""
+            
     def give_round_name(self):
         """ get or ask round name"""
         round_nbr = len(Round.rounds_db)
         round_name = f'{"Round"}{round_nbr+1}'
         return round_name
-
+        
     def create_r_matches_list(self):
         """ launch creation of the round's matches'list """
         r_matches_list = TournamentController.add_match_to_r_matches_list(
@@ -359,20 +376,21 @@ class MatchController:
 class PlayerController:
     def __init__(self):
         self.player_view = PlayerView()
+        
 
     def create_player(self, player_id=0):
         """create one player"""
         player = Player(
             player_id,
-            self.ask_player_name(),
-            self.ask_player_first_name(),
-            self.ask_player_birth_date(),
-            self.ask_player_gender(),
-            self.ask_player_ranking(),
+            PlayerController.ask_player_name(self),
+            PlayerController.ask_player_first_name(self),
+            PlayerController.ask_player_birth_date(self),
+            PlayerController.ask_player_gender(self),
+            PlayerController.ask_player_ranking(self),
             player_points_qty=0
         )
         player.create_player()
-        Player.update_player_id()
+        Player.update_player_id(self)
         return player
 
     def ask_player_name(self):
@@ -408,18 +426,24 @@ class PlayerController:
 
     def request_player(self):
         """search a player (by his name & firstname) into db"""
-        search_p_name = self.ask_player_name()
-        search_p_firstname = self.ask_player_first_name()
+        search_p_name = PlayerController.ask_player_name(self)
+        search_p_first_name = PlayerController.ask_player_first_name(self)
         Theplayer = Query()
-        requested_player = Player.players_db.get(
+        searched_player = Player.players_db.get(
             (
-                Theplayer.p_name == search_p_name
+                Theplayer.p_name == search_p_name  # sensible aux MAJ/minuscules
             ) & (
-                Theplayer.p_firstname == search_p_firstname
+                Theplayer.p_firstname == search_p_first_name
                 )
             )
         # Search donne [{}] (liste contenant joueur),
         # mais 'get' donne directement le joueur {}
-        print(requested_player)
-        print(requested_player.doc_id)  # player's DOC_ID
-        return requested_player.doc_id
+        print(searched_player)
+        if searched_player is None: 
+            print('Joueur absent de la base de données.')
+            return searched_player
+        else:
+            print(searched_player.doc_id)  # player's DOC_ID
+            return searched_player.doc_id
+        
+            

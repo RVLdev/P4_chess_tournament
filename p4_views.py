@@ -21,6 +21,10 @@ class TournamentView:
     def askfor_tournament_players(self):
         print('Joueurs du tournoi')
         print('Choisissez un joueur et entrez son numéro')
+    @classmethod
+    def ask_for_player_inclusion(self):
+        print('Liste des joueurs incomplète. Voulez_vous ajouter un joueur ?')
+        print('Saisissez O pour Oui, N pour Non : ')
 
     @classmethod
     def ask_tournament_description(self):
@@ -40,7 +44,11 @@ class RoundView:
     def __init__(self):
         pass
 
-    def ask_round_name(self):
+    def launch_round(self):
+        print('lancer un nouveau tour ?')
+        print('Saisissez O pour Oui, N pour Non : ')
+
+    def ask_round_name(self):  # 01/02/22 NON utilisé => "Round"+N°incrémentation
         pass
 
     def close_a_round(self):
@@ -53,7 +61,7 @@ class MatchView:
 
     @classmethod
     def ask_score_player(cls):
-        print("player_score: ")
+        print("Score du joueur: ")
 
 
 class PlayerView:
@@ -62,26 +70,26 @@ class PlayerView:
 
     @classmethod
     def ask_player_name(cls):
-        print("player_name : ")
+        print("Nom du joueur : ")
 
     @classmethod
     def ask_player_first_name(cls):
-        print("player_first_name : ")
+        print("Prénom du joueur : ")
 
     @classmethod
     def ask_player_birth_date(cls):
-        print("player_birth_date : ")
+        print("Date de naissance : ")
 
     @classmethod
     def ask_player_gender(cls):
-        print("player_gender : ")
+        print("Sexe (H / F) : ")
 
     @classmethod
     def ask_player_ranking(cls):
-        print("player_ranking : ")
+        print("Classement : ")
 
     def ask_player_points_qty(self):  # A GERER DS TOURNOI
-        print("player_points_qty : ")
+        print("Nombre de points : ")
 
     @classmethod
     def ask_choice_menu_add_t_player(cls):
