@@ -15,7 +15,7 @@ class Tournament:
         self.tournament_date = tournament_date
         self.tournament_description = tournament_description
         self.tournament_time_control = tournament_time_control
-        self.tournament_rounds_qty = tournament_rounds_qty                      
+        self.tournament_rounds_qty = tournament_rounds_qty
         self.tournament_players_id_list = tournament_players_id_list
         self.tournament_rounds_id_list = tournament_rounds_id_list
 
@@ -38,7 +38,7 @@ class Tournament:
                 't_time_control': self.tournament_time_control,
                 't_round_qty': self.tournament_rounds_qty,
                 't_players_list': self.tournament_players_id_list,
-                't_rounds_list': self.tournament_rounds_id_list,                             
+                't_rounds_list': self.tournament_rounds_id_list
             }
             )
 
@@ -185,7 +185,7 @@ class Player:
         """ create (and save to a database) a player """
         self.players_db.insert(
             {
-                'p_id': self.player_id, #tinyDB doc_id de l'instance
+                'p_id': self.player_id,  # tinyDB doc_id de l'instance
                 'p_name': self.player_name,
                 'p_firstname': self.player_first_name,
                 'p_birthdate': self.player_birth_date,
@@ -201,10 +201,13 @@ class Player:
         return Player()
 
     def update_player_id(self):
-        """ update player_id to be = doc_id """
-        new_player_id = self.players_db.get(self.Theplayer.p_id == 0)
-        player_id = new_player_id.doc_id
-        self.players_db.update({'p_id': self.player_id}, doc_ids=[player_id])
+        # update player_id to be = doc_id 
+        new_player_id = (self.players_db.get(self.Theplayer.p_id == 0)).doc_id
+        if new_player_id is None:
+            pass
+        else:
+            self.players_db.update({'p_id': new_player_id},
+                               doc_ids=[new_player_id])
 
     @classmethod
     def update_player_ranking(cls, player_id, player_ranking):

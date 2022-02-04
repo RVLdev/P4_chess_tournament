@@ -6,7 +6,7 @@ from p4_views import TournamentView
 from p4_views import RoundView
 from p4_views import PlayerView
 from p4_views import MatchView
-from tinydb import where, Query
+from tinydb import TinyDB, where, Query
 
 
 class TournamentController:
@@ -20,6 +20,9 @@ class TournamentController:
         self.points_sorted_p_id_list = []
         self.m_list = []  # list of matches from DB
         self.previous_pairs_list = []  # list of previous matches pairs of players
+        self.db = TinyDB('db.json')
+        self.Theplayer = Query()
+        self.players_db = self.db.table('players_db')
 
     def create_new_tournament(self, tournament_id=0):
         """create one tournament"""
@@ -92,11 +95,14 @@ class TournamentController:
         if requested_player is None:
             print('Merci de saisir à nouveau : ')
             newplayer = PlayerController.create_player(self, player_id=0)
-            Player.update_player_id()
-            self.tournament_players_id_list.append(newplayer.doc_id)
+            newplayer_id = newplayer.player_id
+            # inutile déjà màj à la création Player.update_player_id(self)
+            self.tournament_players_id_list.append(newplayer_id)
+            print(self.tournament_players_id_list)
         # if player in DB, add it to list
         else:
             self.tournament_players_id_list.append(requested_player)
+            print(self.tournament_players_id_list)
         return self.tournament_players_id_list
 
     def create_tournament_rounds_id_list(self, tournament_rounds_qty):  # rounds doc_ids
@@ -376,7 +382,6 @@ class MatchController:
 class PlayerController:
     def __init__(self):
         self.player_view = PlayerView()
-        
 
     def create_player(self, player_id=0):
         """create one player"""
