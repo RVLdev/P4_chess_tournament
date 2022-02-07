@@ -21,6 +21,7 @@ class TournamentView:
     def askfor_tournament_players(self):
         print('Joueurs du tournoi')
         print('Choisissez un joueur et entrez son numéro')
+
     @classmethod
     def ask_for_player_inclusion(self):
         print('Liste des joueurs incomplète. Voulez_vous ajouter un joueur ?')

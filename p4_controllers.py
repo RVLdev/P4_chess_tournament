@@ -14,6 +14,7 @@ class TournamentController:
         self.tournament_view = TournamentView()
         self.tournament_players_id_list = []
         self.tournament_rounds_id_list = []
+        self.tournament_rounds_qty =  self.ask_tournament_rounds_qty()
         self.t_full_players_list = []
         self.rank_sorted_p_list = []
         self.points_sorted_p_list = []
@@ -23,6 +24,8 @@ class TournamentController:
         self.db = TinyDB('db.json')
         self.Theplayer = Query()
         self.players_db = self.db.table('players_db')
+        self.Theround = Query()
+        self.rounds_db = self.db.table('rounds_db')
 
     def create_new_tournament(self, tournament_id=0):
         """create one tournament"""
@@ -33,9 +36,9 @@ class TournamentController:
             self.ask_tournament_date(),
             self.ask_tournament_description(),
             self.ask_time_control(),
-            self.ask_tournament_rounds_qty(),  # 4 par défaut
+            self.tournament_rounds_qty,  # 4 par défaut
             self.create_tournament_players_id_list(),  # doc_ids
-            self.create_tournament_rounds_id_list,  # rounds doc_ids list
+            self.create_tournament_rounds_id_list(self.tournament_rounds_qty)  # rounds doc_ids list
             )
         tournament.create_tournament()
         Tournament.update_tournament_id()
@@ -75,16 +78,24 @@ class TournamentController:
         tournament_rounds_qty = input()
         return tournament_rounds_qty
 
-    def create_tournament_players_id_list(self):  # A COMPLETER ; players doc_ids
-        """ create this tournament's list of 8 players"""
+    def create_tournament_players_id_list(self):  # code pr test + A COMPLETER ; players doc_ids
+        # pour tests :
+        self.tournament_players_id_list=[]
+        for item in Player.players_db:
+            self.tournament_players_id_list.append(item.doc_id)
+        """ create this tournament's list of 8 players
         while len(self.tournament_players_id_list) < 8:
             TournamentView.ask_for_player_inclusion()
             player_inclusion = input()
             if player_inclusion == 'N':
-               return '???'  #      A COMPLETER
+               print(' !!! !!! !!!')
+               print(' RE le cas NE PAS AJOUTER JOUEUR')
+               print('cf def create_tournament_players_id_list')
+               print(' !!! !!! !!!')
+               pass
             else:
                 self.add_player_to_tournament()
-        print('liste des joueurs du tournoi complète')
+        print('liste des joueurs du tournoi complète')"""
         return self.tournament_players_id_list
 
     def add_player_to_tournament(self):
@@ -94,27 +105,43 @@ class TournamentController:
         # if player not in DB, launch its creation and add it to list
         if requested_player is None:
             print('Merci de saisir à nouveau : ')
-            newplayer = PlayerController.create_player(self, player_id=0)
-            newplayer_id = newplayer.player_id
-            # inutile déjà màj à la création Player.update_player_id(self)
-            self.tournament_players_id_list.append(newplayer_id)
+            new_player = PlayerController.create_new_player(self, player_id=0)
+            Theplayer = Query()
+            new_player_id = (Player.players_db.get(
+            (
+                Theplayer.p_name == new_player.player_name
+            ) & (
+                Theplayer.p_firstname == new_player.player_first_name
+                )
+            )).doc_id
+            print(new_player_id)
+            self.tournament_players_id_list.append(new_player_id)
             print(self.tournament_players_id_list)
+            print('** - ** - ** - **')
         # if player in DB, add it to list
         else:
             self.tournament_players_id_list.append(requested_player)
             print(self.tournament_players_id_list)
+            print('++ - ++ - ++')
         return self.tournament_players_id_list
 
     def create_tournament_rounds_id_list(self, tournament_rounds_qty):  # rounds doc_ids
-        while len(self.tournament_rounds_id_list) < tournament_rounds_qty:
+        print("j'en suis là: def create_tournament_rounds_id_list")
+        while len(self.tournament_rounds_id_list) < int(tournament_rounds_qty):
             self.add_round_to_t_rounds_list()
         return self.tournament_rounds_id_list
 
     def add_round_to_t_rounds_list(self):  # ERREUR cf liste DOC_ID
         """add new round to round matches list"""
-        new_round = Round.create_round()
-        Round.update_round_id()
-        self.tournament_rounds_id_list.append(new_round.round_id)  # doc_id
+        print("j'en suis là: def add_round_to_t_rounds_list")
+        new_round = RoundController.create_round(self)
+        Theround = Query()
+        new_round_id = Round.rounds_db.get(
+            (Theround.r_name == new_round.round_name)
+        ).doc_id
+        print(new_round_id)
+        self.tournament_rounds_id_list.append(new_round_id)  # doc_id
+        print(self.tournament_rounds_id_list)
 
     def sort_tournament_players_list_by_rank(self):
         """sort by rank tournament players list"""
@@ -265,12 +292,13 @@ class RoundController:
     def create_round(self, round_id=0, end_date_time=0):
         """ create a round """
         round = Round(round_id,
-                      self.give_round_name(),
-                      self.create_r_matches_list(),
-                      self.set_start_date_time(),
+                      RoundController.give_round_name(self),
+                      RoundController.create_r_matches_list(self),
+                      RoundController.set_start_date_time(self),
                       end_date_time)
         round.create_round()
-        Round.update_round_id()
+        Round.update_round_id(self)
+        print("j'en suis là : def create_round / return")
         return round
 
     def ask_user_round_launch(self):  # new v 01/02/22
@@ -291,6 +319,12 @@ class RoundController:
         
     def create_r_matches_list(self):
         """ launch creation of the round's matches'list """
+        TournamentController.rank_sorted_p_list = (
+            TournamentController.sort_tournament_players_list_by_rank(self)
+            )
+        TournamentController.points_sorted_p_list = (
+            TournamentController.sort_tournament_players_id_list_by_points((self, TournamentController.rank_sorted_p_list))
+            )
         r_matches_list = TournamentController.add_match_to_r_matches_list(
                 TournamentController.rank_sorted_p_list,
                 TournamentController.points_sorted_p_list)
@@ -383,7 +417,8 @@ class PlayerController:
     def __init__(self):
         self.player_view = PlayerView()
 
-    def create_player(self, player_id=0):
+
+    def create_new_player(self, player_id=0):
         """create one player"""
         player = Player(
             player_id,

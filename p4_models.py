@@ -204,10 +204,11 @@ class Player:
         # update player_id to be = doc_id 
         new_player_id = (self.players_db.get(self.Theplayer.p_id == 0)).doc_id
         if new_player_id is None:
-            pass
+            print('new_player_id ALREADY updated')
         else:
             self.players_db.update({'p_id': new_player_id},
                                doc_ids=[new_player_id])
+        return new_player_id # ajout 04/02
 
     @classmethod
     def update_player_ranking(cls, player_id, player_ranking):
