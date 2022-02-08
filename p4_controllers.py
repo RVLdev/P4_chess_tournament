@@ -12,9 +12,10 @@ from tinydb import TinyDB, where, Query
 class TournamentController:
     def __init__(self):
         self.tournament_view = TournamentView()
+        self.tournament_id = 0
+        self.tournament_rounds_qty=4
         self.tournament_players_id_list = []
         self.tournament_rounds_id_list = []
-        self.tournament_rounds_qty =  self.ask_tournament_rounds_qty()
         self.t_full_players_list = []
         self.rank_sorted_p_list = []
         self.points_sorted_p_list = []
@@ -22,26 +23,31 @@ class TournamentController:
         self.m_list = []  # list of matches from DB
         self.previous_pairs_list = []  # list of previous matches pairs of players
         self.db = TinyDB('db.json')
+        self.Thetournmt = Query()
+        self.tournaments_db = self.db.table('tournaments_db')
         self.Theplayer = Query()
         self.players_db = self.db.table('players_db')
         self.Theround = Query()
         self.rounds_db = self.db.table('rounds_db')
 
-    def create_new_tournament(self, tournament_id=0):
+    def create_new_tournament(self):
         """create one tournament"""
         tournament = Tournament(
-            tournament_id,
+            self.tournament_id,
             self.ask_tournament_name(),
             self.ask_tournament_place(),
             self.ask_tournament_date(),
             self.ask_tournament_description(),
             self.ask_time_control(),
             self.tournament_rounds_qty,  # 4 par défaut
-            self.create_tournament_players_id_list(),  # doc_ids
-            self.create_tournament_rounds_id_list(self.tournament_rounds_qty)  # rounds doc_ids list
+            self.tournament_players_id_list,  # doc_ids
+            self.tournament_rounds_id_list  # rounds doc_ids list
             )
-        tournament.create_tournament()
-        Tournament.update_tournament_id()
+        tournament.create_tournament()  # ok
+        self.tournament_id = Tournament.update_tournament_id(self) # ok
+        self.confirm_tournament_rounds_qty(self.tournament_id)  # ok
+        # update_tournament_players_id_list
+        # update_tournament_rounds_id_list
         return tournament
 
     def ask_tournament_name(self):
@@ -72,18 +78,15 @@ class TournamentController:
         time_control = input()
         return time_control
 
-    def ask_tournament_rounds_qty(self):
+    def confirm_tournament_rounds_qty(self, tournament_id):  # ok
         """ Get tournament_rounds_qty from User"""
         TournamentView.ask_tournament_rounds_qty()
         tournament_rounds_qty = input()
-        return tournament_rounds_qty
+        Tournament.update_tournament_rounds_qty(self, tournament_rounds_qty, tournament_id)
 
     def create_tournament_players_id_list(self):  # code pr test + A COMPLETER ; players doc_ids
-        # pour tests :
-        self.tournament_players_id_list=[]
-        for item in Player.players_db:
-            self.tournament_players_id_list.append(item.doc_id)
-        """ create this tournament's list of 8 players
+        
+        """ create this tournament's list of 8 players"""
         while len(self.tournament_players_id_list) < 8:
             TournamentView.ask_for_player_inclusion()
             player_inclusion = input()
@@ -95,7 +98,7 @@ class TournamentController:
                pass
             else:
                 self.add_player_to_tournament()
-        print('liste des joueurs du tournoi complète')"""
+        print('liste des joueurs du tournoi complète')
         return self.tournament_players_id_list
 
     def add_player_to_tournament(self):
