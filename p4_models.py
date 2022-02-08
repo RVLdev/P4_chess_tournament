@@ -6,8 +6,9 @@ class Tournament:
     """ defines an object 'tournament' : (shape, characteristics)"""
     def __init__(self, tournament_id, tournament_name, tournament_place,
                  tournament_date, tournament_description,
-                 tournament_time_control, tournament_rounds_id_list,
-                 tournament_players_id_list, tournament_rounds_qty=4,):
+                 tournament_time_control, tournament_rounds_qty,
+                 tournament_rounds_id_list, tournament_players_id_list):
+                 
 
         self.tournament_id = tournament_id
         self.tournament_name = tournament_name
@@ -23,7 +24,7 @@ class Tournament:
 
         """creation of a database for tournaments """
         self.db = TinyDB('db.json')
-        self.Tournmt = Query()
+        self.Thetournmt = Query()
         self.tournaments_db = self.db.table('tournaments_db')
 
     def create_tournament(self):
@@ -46,12 +47,22 @@ class Tournament:
         self.tournaments_db.get(doc_id=tournament_id)
         return Tournament()
 
-    def update_tournament_id(self):
+    def update_tournament_id(self):  # ok
         """ default new tournament id = 0
         Update tournament_id of a new tournament with DB doc_id value """
-        new_tournmt_id = self.tournaments_db.get(self.Tournmt.t_id == 0)
+        print('je suis dans MODEL/def update_tournament_id')
+        new_tournmt_id = self.tournaments_db.get(self.Thetournmt.t_id == 0)
         tournament_id = new_tournmt_id.doc_id
-        self.tournaments_db.update({'t_id': self.tournament_id},
+        print(tournament_id)  # print A SUPPRIMER
+        self.tournaments_db.update({'t_id': tournament_id},
+                                   doc_ids=[tournament_id])
+        return tournament_id
+
+    def update_tournament_rounds_qty(self,
+                                     tournament_rounds_qty,
+                                     tournament_id):  # ok
+        print(tournament_id)  # print A SUPPRIMER
+        self.tournaments_db.update({'t_round_qty': tournament_rounds_qty},
                                    doc_ids=[tournament_id])
 
     def delete_tournament(self, tournament_id):
