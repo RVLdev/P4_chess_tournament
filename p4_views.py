@@ -54,14 +54,20 @@ class RoundView:
 
     def close_a_round(self):
         print('Pour terminer un tour : suivez les instructions')  # à mettre ds INTERFACE
-        print('liste des tournois : ') # à mettre ds INTERFACE
-        print('Saisissez le nom du tournoi concerné :')
-        print('Tour terminé')  # afficher aussi "end_date_time" ?
 
+    def ask_tournament_name(self):
+        print('Saisissez le nom du tournoi concerné :')
+        
+    def ask_round_name(self):
+        print('Saisissez le nom du tour concerné :')
 
 class MatchView:
     def __init__(self):
         pass
+
+    @classmethod
+    def update_scores(cls):
+        print('Saisie des scores')
 
     @classmethod
     def ask_score_player(cls):

@@ -121,8 +121,8 @@ class Round:
         self.rounds_db.get(doc_id=round_id)
         return Round()
 
-    # end_date_time A REVOIR
-    def close_round(self, round_id):  # grandes lignes
+    # end_date_time
+    def close_round(self, round_id):
         end_date_time = str(datetime.now())
         self.update_round_end_date_time(round_id, end_date_time)
         return end_date_time
