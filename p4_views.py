@@ -53,6 +53,9 @@ class RoundView:
         pass
 
     def close_a_round(self):
+        print('Pour terminer un tour : suivez les instructions')  # à mettre ds INTERFACE
+        print('liste des tournois : ') # à mettre ds INTERFACE
+        print('Saisissez le nom du tournoi concerné :')
         print('Tour terminé')  # afficher aussi "end_date_time" ?
 
 

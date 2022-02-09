@@ -50,10 +50,8 @@ class Tournament:
     def update_tournament_id(self):  # ok
         """ default new tournament id = 0
         Update tournament_id of a new tournament with DB doc_id value """
-        print('je suis dans MODEL/def update_tournament_id')
         new_tournmt_id = self.tournaments_db.get(self.Thetournmt.t_id == 0)
         tournament_id = new_tournmt_id.doc_id
-        print(tournament_id)  # print A SUPPRIMER
         self.tournaments_db.update({'t_id': tournament_id},
                                    doc_ids=[tournament_id])
         return tournament_id
@@ -61,8 +59,12 @@ class Tournament:
     def update_tournament_rounds_qty(self,
                                      tournament_rounds_qty,
                                      tournament_id):  # ok
-        print(tournament_id)  # print A SUPPRIMER
         self.tournaments_db.update({'t_round_qty': tournament_rounds_qty},
+                                   doc_ids=[tournament_id])
+
+    def update_tournament_players_id_list(self, tournament_players_id_list,
+                                          tournament_id):  # ok
+        self.tournaments_db.update({'t_players_list': tournament_players_id_list},
                                    doc_ids=[tournament_id])
 
     def delete_tournament(self, tournament_id):
@@ -97,6 +99,13 @@ class Round:
         new_round_id = self.rounds_db.get(self.Theround.r_id == 0)
         round_id = new_round_id.doc_id
         self.rounds_db.update({'p_id': self.round_id}, doc_ids=[round_id])
+    
+    def update_r_matches_list(self, r_matches_list, round_id):
+        self.rounds_db.update({'r_matches_list': r_matches_list}, doc_ids=[round_id])
+
+    def update_start_date_time(self, start_date_time, round_id):
+        """ update start_date_time  """
+        self.rounds_db.update({'start_datentime': start_date_time}, doc_ids=[round_id])
 
     # start_date_time DOIT ETRE "renseigné" A LA CREATION DE L'OBJET ROUND
     def start_round(self):
@@ -104,15 +113,15 @@ class Round:
         start_date_time = str(datetime.now())
         return start_date_time
 
+    def read_round(self, round_id):
+        self.rounds_db.get(doc_id=round_id)
+        return Round()
+
     # end_date_time A REVOIR
     def close_round(self, round_id):  # grandes lignes
         end_date_time = str(datetime.now())
         self.update_round_end_date_time(round_id, end_date_time)
         return end_date_time
-
-    def read_round(self, round_id):
-        self.rounds_db.get(doc_id=round_id)
-        return Round()
 
     def update_round_end_date_time(self, round_id, end_date_time):
         self.rounds_db.update(
