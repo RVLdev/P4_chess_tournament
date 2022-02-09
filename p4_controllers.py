@@ -420,10 +420,7 @@ class TournamentController:
             Player.players_db.update({'p_total_points': new_total_points_pl2},
                                         doc_ids=[match_pl2_doc_id])
 
-        self.update_players_ranking()
-
-    def update_players_ranking(self):
-        pass
+        PlayerController.update_players_ranking()
 
 
 class RoundController:
@@ -550,7 +547,6 @@ class PlayerController:
     def __init__(self):
         self.player_view = PlayerView()
 
-
     def create_new_player(self, player_id=0):
         """create one player"""
         player = Player(
@@ -596,6 +592,13 @@ class PlayerController:
         PlayerView.ask_player_ranking()
         player_ranking = input()
         return player_ranking
+
+    def update_players_ranking(self):
+        player_request_id = self.request_player()
+        PlayerView.ask_player_ranking()
+        player_ranking = input()
+        new_player_ranking = Player.update_player_ranking(player_request_id, player_ranking)
+        return new_player_ranking
 
     def request_player(self):
         """search a player (by his name & firstname) into db"""

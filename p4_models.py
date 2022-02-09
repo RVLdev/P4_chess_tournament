@@ -234,10 +234,9 @@ class Player:
                                doc_ids=[new_player_id])
         return new_player_id # ajout 04/02
 
-    @classmethod
-    def update_player_ranking(cls, player_id, player_ranking):
+    def update_player_ranking(self, player_id, player_ranking):
         """ update a player rank in DB through its ID"""
-        cls.players_db.update({'p_rank': player_ranking},
+        self.players_db.update({'p_rank': player_ranking},
                               doc_ids=[player_id])
 
     def delete_player(self, player_id):
