@@ -9,7 +9,6 @@ class Tournament:
                  tournament_time_control, tournament_rounds_qty,
                  tournament_rounds_id_list, tournament_players_id_list):
                  
-
         self.tournament_id = tournament_id
         self.tournament_name = tournament_name
         self.tournament_place = tournament_place
@@ -19,7 +18,6 @@ class Tournament:
         self.tournament_rounds_qty = tournament_rounds_qty
         self.tournament_players_id_list = tournament_players_id_list
         self.tournament_rounds_id_list = tournament_rounds_id_list
-
         tournament_rounds_id_list = []
 
         """creation of a database for tournaments """
@@ -67,6 +65,11 @@ class Tournament:
         self.tournaments_db.update({'t_players_list': tournament_players_id_list},
                                    doc_ids=[tournament_id])
 
+    def update_tournament_rounds_id_list(self, tournament_rounds_id_list,
+                                         tournament_id):
+        self.tournaments_db.update({'t_rounds_list': tournament_rounds_id_list},
+                                   doc_ids=[tournament_id])
+   
     def delete_tournament(self, tournament_id):
         self.tournaments_db.remove(doc_id=tournament_id)
 
@@ -103,8 +106,9 @@ class Round:
     def update_r_matches_list(self, r_matches_list, round_id):
         self.rounds_db.update({'r_matches_list': r_matches_list}, doc_ids=[round_id])
 
-    def update_start_date_time(self, start_date_time, round_id):
+    def update_start_date_time(self, round_id):
         """ update start_date_time  """
+        start_date_time = self.start_round()
         self.rounds_db.update({'start_datentime': start_date_time}, doc_ids=[round_id])
 
     # start_date_time DOIT ETRE "renseigné" A LA CREATION DE L'OBJET ROUND
