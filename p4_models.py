@@ -101,7 +101,7 @@ class Round:
         """ update round_id to be = doc_id """
         new_round_id = self.rounds_db.get(self.Theround.r_id == 0)
         round_id = new_round_id.doc_id
-        self.rounds_db.update({'p_id': self.round_id}, doc_ids=[round_id])
+        self.rounds_db.update({'r_id': round_id}, doc_ids=[round_id])
     
     def update_r_matches_list(self, r_matches_list, round_id):
         self.rounds_db.update({'r_matches_list': r_matches_list}, doc_ids=[round_id])

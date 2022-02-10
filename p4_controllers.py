@@ -17,6 +17,7 @@ class TournamentController:
         self.tournament_players_id_list = []
         self.tournament_rounds_id_list = []
         self.t_full_players_list = []
+        # self.r_matches_list = []  # EMPLACEMENT A REVOIR
         self.rank_sorted_p_list = []
         self.points_sorted_p_list = []
         self.points_sorted_p_id_list = []
@@ -43,8 +44,15 @@ class TournamentController:
             self.tournament_players_id_list,  # doc_ids
             self.tournament_rounds_id_list  # rounds doc_ids list
             )
-        tournament.create_tournament()  # ok
-        self.tournament_id = Tournament.update_tournament_id(self) # ok
+        tournament.create_tournament()
+        self.tournament_id = Tournament.update_tournament_id(self)
+
+        # VERIFICATION
+        print('ETAPE create new tournament, update tournament id')
+        for t in Tournament.tournaments_db:
+            print(t)
+
+        # add/update values : rounds_qty, players_id_list, rounds_id_list
         self.update_tourney_data(self.tournament_rounds_qty, self.tournament_id)
         return tournament
 
@@ -77,18 +85,44 @@ class TournamentController:
         return time_control
 
     def update_tourney_data(self, tournament_rounds_qty, tournament_id):
-        self.confirm_tournament_rounds_qty(tournament_id)  # ok
-        self.create_tournament_players_id_list(tournament_id)  # ok
+        self.confirm_tournament_rounds_qty(tournament_id)
+        # VERIFICATION
+        print('valeur confirmée de rounds_qty :')
+        print((Tournament.tournaments_db.get(doc_id = tournament_id))['t_round_qty'])
+        
+        self.create_tournament_players_id_list(tournament_id)
+        # VERIFICATION
+        print('Liste des doc_ids des joueurs du tournoi :')
+        print((Tournament.tournaments_db.get(doc_id = tournament_id))['t_players_list'])
+        
+        
         self.create_tournament_rounds_id_list(tournament_rounds_qty, tournament_id)
+        # VERIFICATION
+        print('Liste des doc_ids des tours du tournoi :')
+        print((Tournament.tournaments_db.get(doc_id = tournament_id))['t_rounds_list'])
+        
+        # SIMULATION DDE DE FERMETURE DU TOUR
+        RoundView.ask_round_closing()
+        r_closing = input()
+        if r_closing == 'N':
+            pass
+        else:
+            self.end_round()  # lance clôture round, puis màj scores & pts)
+            
         # udate scores : automatique après dde de fermeture du tour par le User
+        # VERIFICATION ds code 'def update_r_match_score()'
+        
         # update players points qy : automatique, suit l'update des scores
+        # VERIFICATION ds code def update_player_points_qty(self)
 
-    def confirm_tournament_rounds_qty(self, tournament_id):  # ok
+    def confirm_tournament_rounds_qty(self, tournament_id):
         """ Get tournament_rounds_qty from User"""
         TournamentView.ask_tournament_rounds_qty()
-        tournament_rounds_qty = input()
+        tournament_rounds_qty = int(input())
         # save 'tournament_rounds_qty' :
         Tournament.update_tournament_rounds_qty(self, tournament_rounds_qty, tournament_id)
+        
+        
 
     def create_tournament_players_id_list(self, tournament_id):  # ok  - players doc_ids
         """ create this tournament's list of 8 players"""
@@ -147,7 +181,7 @@ class TournamentController:
     def create_tournament_rounds_id_list(self, tournament_rounds_qty, tournament_id):  # rounds doc_ids
         """ create this tournament's list of rounds_id"""
         while len(self.tournament_rounds_id_list) < int(tournament_rounds_qty):
-            RoundView.launch_round()
+            RoundView.launch_round(self)
             launch_answ = input()
             if launch_answ == 'N':
                 pass
@@ -160,7 +194,7 @@ class TournamentController:
     def add_round_to_t_rounds_list(self, tournament_id):  # vérifier que l'on obtient bien doc_id du Round
         """add new round to round matches list"""
         # PRINCIPE : je crée un round et je l'ajoute à la liste
-        round = RoundController.create_round(tournament_id, round_id=0,
+        round = RoundController.create_round(self, tournament_id, round_id=0,
                         end_date_time=0, start_date_time=0)
         
         self.tournament_rounds_id_list.append(round.round_id)  # on veut doc_id du Round
@@ -172,8 +206,8 @@ class TournamentController:
     # ROUND / matches list
     # matchs contiennent doc_ids Joueurs:
     def creation_r_matches_list(self, tournament_id, round_id):
+        RoundController.r_matches_list = []
         matches_nb = (len(self.tournament_players_id_list))/2
-        
         while len(RoundController.r_matches_list) < matches_nb:
             if len(self.tournament_rounds_id_list) >= 1:
                 next_round_matches = self.create_next_round_matches_list(tournament_id)
@@ -211,7 +245,7 @@ class TournamentController:
     def sort_tournament_players_list_by_rank(self, tournament_id):
         """sort by rank tournament players list"""
         # récupère la liste complète des éléments à trier
-        self.tournament_players_id_list = self.create_tournament_players_id_list(self, tournament_id)
+        self.tournament_players_id_list = self.create_tournament_players_id_list(tournament_id)
         print(len(self.tournament_players_id_list))
         for pl_id in self.tournament_players_id_list:
             t_full_player = Player.players_db.get(doc_id=pl_id)
@@ -335,26 +369,41 @@ class TournamentController:
 
      # SCORES 09/02/2022
     # update scores in r_matches_list AND matches_db
-    def update_r_match_score(self):  # actuellement ds RoundController
+    def update_r_match_score(self):  # ancien code ds RoundController
         """ update round matches players'score"""
-        # ESSAI CORRECTION CODE v09/02
-        # quel match ? de quel Round ? de quel Tournoi ?
         MatchView.update_scores()
-        round_id = self.request_round_id()
+        round_id = self.request_round_id()  #  récupère Tournoi et Round concernés
         matches_list = (Round.rounds_db.get(doc_id = round_id))['r_matches_list']
+        
+        # VERIFICATION intermédiaire
+        print('liste des matchs pour màj des scores')
+        print(matches_list)
         
         nbr_matches = len(matches_list)
         for i in range(0, nbr_matches):
-            player1_score = self.ask_player1_score(i, matches_list)
-            player2_score = self.ask_player2_score(i, matches_list)
+            # VERIFICATION 1/2
+            print('player1_score avant update')  # VERIF
+            print(RoundController.r_matches_list[i]['score_player1'])  # VERIF
+            print('player2_score avant update')  # VERIF
+            print(RoundController.r_matches_list[i]['score_player2'])  # VERIF
+            
+            player1_score = RoundController.ask_player1_score(i, matches_list)
+            player2_score = RoundController.ask_player2_score(i, matches_list)
 
             # update r_matches_list
             RoundController.r_matches_list[i]['score_player1'] = player1_score
             RoundController.r_matches_list[i]['score_player2'] = player2_score
+            
+            # VERIFICATION : comparaison visuelle 1/2 et 2/2
+            print('player1_score APRES update')  # VERIF
+            print(RoundController.r_matches_list[i]['score_player1'])  # VERIF
+            print('player2_score APRES update')  # VERIF
+            print(RoundController.r_matches_list[i]['score_player2'])  # VERIF
+            
             # update matches_db
             match_id = i
             Match.update_players_scores(match_id, player1_score, player2_score)
-            
+
         self.update_player_points_qty()
 
     def ask_player1_score(self, i, matches_list):
@@ -368,7 +417,7 @@ class TournamentController:
         print('joueur1: ' + matches_list[i]['chess_player1']['p_name'])
 
         MatchView.ask_score_player()
-        player1_score = input('saisissez son score (0 ou 0.5 ou 1) : ')
+        player1_score = int(input('saisissez son score (0 ou 0.5 ou 1) : '))
         print('joueur1 : ' + matches_list[i]['chess_player1']['p_name']
                             + ' score = ' + player1_score)
 
@@ -385,7 +434,7 @@ class TournamentController:
         print('joueur2 : '+matches_list[i]['chess_player2']['p_name'])
 
         MatchView.ask_score_player()
-        player2_score = input('saisissez son score (0 ou 0.5 ou 1) : ')
+        player2_score = int(input('saisissez son score (0 ou 0.5 ou 1) : '))
         print('joueur2 : ' + matches_list[i]['chess_player2']['p_name']
                             + ' score = ' + player2_score)
         return player2_score
@@ -402,39 +451,63 @@ class TournamentController:
             player1 = Player.players_db.get(doc_id=match_pl1_doc_id)  # ou doc_ids=[]
             previous_points_pl1 = player1['p_total_points']
 
+            print('points précédents Joueur 1')  # VERIF
+            print(previous_points_pl1)  # VERIF
+
             # Get match 1st player's new points (match score)
             new_points_pl1 = RoundController.r_matches_list[j]['score_player1']
+
+            print('nouveaux points Joueur 1')  # VERIF
+            print(new_points_pl1)  # VERIF
 
             # calculate match 1st player's new total of points & update its points in DB
             new_total_points_pl1 = new_points_pl1 + previous_points_pl1
             Player.players_db.update({'p_total_points': new_total_points_pl1},
                                         doc_ids=[match_pl1_doc_id])
 
+            print('nouveau total de points Joueur 1')  # VERIF
+            print(new_total_points_pl1)  # VERIF
+            print('Vérif màj POINTS Joueur 1 : ')  # VERIF
+            print(Player.players_db.get(doc_id=match_pl1_doc_id))  # VERIF
+            
             # do the same with match 2nd player
             match_pl2_doc_id = RoundController.r_matches_list[j]['chess_player2']
             player2 = Player.players_db.get(doc_id=match_pl2_doc_id)  # ou doc_ids=[]
             previous_points_pl2 = player2['p_total_points']
 
+            print('points précédents Joueur 2')  # VERIF
+            print(previous_points_pl2)  # VERIF
+
             new_points_pl2 = RoundController.r_matches_list[j]['score_player2']
+            
+            print('nouveaux points Joueur 2')  # VERIF
+            print(new_points_pl2)  # VERIF
+            
             new_total_points_pl2 = new_points_pl2 + previous_points_pl2
             Player.players_db.update({'p_total_points': new_total_points_pl2},
                                         doc_ids=[match_pl2_doc_id])
+            
+            print('nouveau total de points Joueur 2')  # VERIF
+            print(new_total_points_pl2)  # VERIF
+            print('Vérif màj POINTS Joueur 2 : ')  # VERIF
+            print(Player.players_db.get(doc_id=match_pl2_doc_id))  # VERIF
+
 
         PlayerController.update_players_ranking()
 
 
 class RoundController:
     def __init__(self):
-        self.r_matches_list = []
-
+        pass
+        
     # c'est l'utilisateur qui "crée" le tour => def ask_user_round_launch()
     """ CODE du 08 02 2022"""
-    def create_round(self, tournament_id, round_id=0,
+    def create_round(self, tournament_id, r_matches_list = None, round_id=0,
                      end_date_time=0, start_date_time=0):
         """ create a round """
         round = Round(round_id,
                         RoundController.give_round_name(self),  # ok
-                        RoundController.r_matches_list,
+                        r_matches_list,
                         start_date_time,
                         end_date_time)
         round.create_round()
@@ -590,13 +663,13 @@ class PlayerController:
     def ask_player_ranking(self):
         """ get player_ranking from User through player_view """
         PlayerView.ask_player_ranking()
-        player_ranking = input()
+        player_ranking = int(input())
         return player_ranking
 
     def update_players_ranking(self):
         player_request_id = self.request_player()
         PlayerView.ask_player_ranking()
-        player_ranking = input()
+        player_ranking = int(input())
         new_player_ranking = Player.update_player_ranking(player_request_id, player_ranking)
         return new_player_ranking
 

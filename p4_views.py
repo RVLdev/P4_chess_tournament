@@ -49,8 +49,8 @@ class RoundView:
         print('lancer un nouveau tour ?')
         print('Saisissez O pour Oui, N pour Non : ')
 
-    def ask_round_name(self):  # 01/02/22 NON utilisé => "Round"+N°incrémentation
-        pass
+    def ask_round_closing(self):  # 10/02 pr simulation
+        print('Voulez-vous terminer un tour (O/N): ')
 
     def close_a_round(self):
         print('Pour terminer un tour : suivez les instructions')  # à mettre ds INTERFACE
