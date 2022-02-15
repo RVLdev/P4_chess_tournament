@@ -92,7 +92,7 @@ class Round:
         """ create a round """
         self.rounds_db.insert({'r_id': self.round_id,
                                'r_name': self.round_name,
-                               'r_matches_list': self.r_matches_list,
+                               'rnd_matches_list': self.r_matches_list,
                                'start_datentime': self.start_date_time,
                                'end_datentime': self.end_date_time,
                                })
@@ -102,20 +102,21 @@ class Round:
         new_round_id = self.rounds_db.get(self.Theround.r_id == 0)
         round_id = new_round_id.doc_id
         self.rounds_db.update({'r_id': round_id}, doc_ids=[round_id])
+        return round_id
     
-    def update_r_matches_list(self, r_matches_list, round_id):
-        self.rounds_db.update({'r_matches_list': r_matches_list}, doc_ids=[round_id])
+    def update_r_matches_list(self, round_id, r_matches_list) :
+        self.rounds_db.update({'rnd_matches_list': r_matches_list}, doc_ids=[round_id])
 
-    def update_start_date_time(self, round_id):
-        """ update start_date_time  """
-        start_date_time = self.start_round()
+    def update_start_date_time(self, start_date_time, round_id):
+        """ update start_date_time  """ 
         self.rounds_db.update({'start_datentime': start_date_time}, doc_ids=[round_id])
 
-    # start_date_time DOIT ETRE "renseigné" A LA CREATION DE L'OBJET ROUND
+    """   # start_date_time DOIT ETRE "renseigné" A LA CREATION DE L'OBJET ROUND
     def start_round(self):
-        """ generate date & time for the begining of a round"""
+        # generate date & time for the begining of a round
         start_date_time = str(datetime.now())
         return start_date_time
+    """
 
     def read_round(self, round_id):
         self.rounds_db.get(doc_id=round_id)
@@ -154,14 +155,14 @@ class Match:
         self.Thematch = Query()
         self.matches_db = self.db.table('matches_db')
 
-    def create_match(self, match_player1, match_player2):
+    def create_match(self):
         """ create (and save) a match"""
         self.matches_db.insert(
             {
                 'm_id': self.match_id,
-                'chess_player1': match_player1,
+                'chess_player1': self.match_player1,
                 'score_player1': self.player1_score,
-                'chess_player2': match_player2,
+                'chess_player2': self.match_player2,
                 'score_player2': self.player2_score
             }
         )
@@ -172,9 +173,10 @@ class Match:
 
     def update_match_id(self):
         """ update match_id to be = doc_id """
-        new_match_id = self.matches_db.get(self.Thematch.m_id == 0)
-        match_id = new_match_id.doc_id
-        self.matches_db.update({'p_id': self.match_id}, doc_ids=[match_id])
+        new_match_id = self.matches_db.get(self.Thematch.m_id == 0).doc_id
+        self.matches_db.update({'m_id': new_match_id},
+                               doc_ids=[new_match_id])
+        return new_match_id
 
     def update_players_scores(self, match_id, player1_score, player2_score):
         self.matches_db.update({'score_player1': player1_score},
