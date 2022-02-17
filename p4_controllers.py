@@ -10,11 +10,11 @@ from tinydb import TinyDB, where, Query
 from datetime import datetime
 
 
-class TournamentController:
+class TournamentCtlr:
     def __init__(self):
         self.tournament_view = TournamentView()
         self.tournament_id = 0
-        self.tournament_rounds_qty=4
+        self.tournament_rounds_qty = 4
         self.tournament_players_id_list = []
         self.tournament_rounds_id_list = []
         self.t_full_players_list = []
@@ -90,32 +90,34 @@ class TournamentController:
     def update_tourney_data(self, tournament_rounds_qty, tournament_id, r_matches_list):
         self.confirm_tournament_rounds_qty(tournament_id)
         # VERIFICATION
-        print('valeur confirmée de rounds_qty :')  # OK
-        print((Tournament.tournaments_db.get(doc_id = tournament_id))['t_round_qty'])
-        
+        print('L93 valeur confirmée de rounds_qty :')  # OK
+        print((Tournament.tournaments_db.get(doc_id=tournament_id))['t_round_qty'])
+
         self.create_tournament_players_id_list(tournament_id)
         # VERIFICATION
-        print('Liste des doc_ids des joueurs du tournoi :')  # OK
-        print((Tournament.tournaments_db.get(doc_id = tournament_id))['t_players_list'])
-        
+        print('L98 Liste des doc_ids des joueurs du tournoi :')  # OK
+        print((Tournament.tournaments_db.get(doc_id=tournament_id))['t_players_list'])
+
         self.create_tournament_rounds_id_list(tournament_rounds_qty, tournament_id, r_matches_list)
         # VERIFICATION
-        print('Liste des doc_ids des tours du tournoi :')  # en cours de deboggage
-        print((Tournament.tournaments_db.get(doc_id = tournament_id))['t_rounds_list'])
-        
+        print('L103 Liste des doc_ids des tours du tournoi :')  # en cours de deboggage
+        print((Tournament.tournaments_db.get(doc_id=tournament_id))['t_rounds_list'])
+
         # SIMULATION DDE DE FERMETURE DU TOUR
-        RoundView.ask_round_closing()
+        RoundView.ask_round_closing(self)
         r_closing = input()
         if r_closing == 'N':
             pass
         else:
             self.end_round()  # lance clôture round, puis màj scores & pts)
-            
+
         # udate scores : automatique après dde de fermeture du tour par le User
         # VERIFICATION ds code 'def update_r_match_score()'
-        
-        # update players points qy : automatique, suit l'update des scores
+
+        # update players points qty : automatique, suit l'update des scores
         # VERIFICATION ds code def update_player_points_qty(self)
+        
+        # update players points qty lance automatiquement la demande de màj du classement des joueurs (L738)
 
     def confirm_tournament_rounds_qty(self, tournament_id):
         """ Get tournament_rounds_qty from User"""
@@ -123,8 +125,6 @@ class TournamentController:
         tournament_rounds_qty = int(input())
         # save 'tournament_rounds_qty' :
         Tournament.update_tournament_rounds_qty(self, tournament_rounds_qty, tournament_id)
-        
-        
 
     def create_tournament_players_id_list(self, tournament_id):  # ok  - players doc_ids
         """ create this tournament's list of 8 players"""
@@ -132,19 +132,19 @@ class TournamentController:
             TournamentView.ask_for_player_inclusion()
             player_inclusion = input()
             if player_inclusion == 'N':
-               
-               print("liste des joueurs INCOMPLETE enregistrée en l'état")
-               pass  # PREVOIR UNE SORTIE DU TOURNOI VERS L INTERFACE
+
+                print("L136 liste des joueurs INCOMPLETE enregistrée en l'état")
+                pass  # PREVOIR UNE SORTIE DU TOURNOI VERS L INTERFACE
             else:
                 self.add_player_to_tournament(tournament_id)
             # save 'tournament_players_id_list':
             Tournament.update_tournament_players_id_list(
-                   self, 
+                   self,
                    self.tournament_players_id_list,
                    tournament_id
                    )
-        
-        print('liste des joueurs du tournoi complète')
+
+        print('L147 liste des joueurs du tournoi complète')  # A AFFICHER DS INTERFACE (pas ici)
         return self.tournament_players_id_list
 
     def add_player_to_tournament(self, tournament_id):  # ok
@@ -157,10 +157,10 @@ class TournamentController:
             new_player = PlayerController.create_new_player(self, player_id=0)
             Theplayer = Query()
             new_player_id = (Player.players_db.get(
-            (
-                Theplayer.p_name == new_player.player_name
-            ) & (
-                Theplayer.p_firstname == new_player.player_first_name
+                (
+                 Theplayer.p_name == new_player.player_name
+                ) & (
+                 Theplayer.p_firstname == new_player.player_first_name
                 )
             )).doc_id
             print(new_player_id)
@@ -173,7 +173,7 @@ class TournamentController:
             print(self.tournament_players_id_list)
 
         Tournament.update_tournament_players_id_list(
-                   self, 
+                   self,
                    self.tournament_players_id_list,
                    tournament_id
                    )
@@ -182,59 +182,70 @@ class TournamentController:
     # PREPARE tournament_ROUNDS_id_LIST - CODE 09/02
     def create_tournament_rounds_id_list(self, tournament_rounds_qty, tournament_id, r_matches_list):  # rounds doc_ids
         """ create this tournament's list of rounds_id"""
-        while len(self.tournament_rounds_id_list) < int(tournament_rounds_qty):
+        for r in range(1, int(tournament_rounds_qty)):  # liste vide => PB pour len(liste vide)
+            print('L 186 VERIF self.tournament_rounds_id_list :')  # VERIF
+            print(self.tournament_rounds_id_list)  # VERIF
             RoundView.launch_round(self)
             launch_answ = input()
             if launch_answ == 'N':
                 pass
             else:
-                self.tournament_rounds_id_list = self.add_round_to_t_rounds_list(tournament_id, r_matches_list)
+                self.add_round_to_t_rounds_list(tournament_id, r_matches_list)   
             # save 'tournament_rounds_id_list'
-            self.tournament_rounds_id_list = Tournament.update_tournament_rounds_id_list(self, self.tournament_rounds_id_list, tournament_id)
+            Tournament.update_tournament_rounds_id_list(self, self.tournament_rounds_id_list, tournament_id)
+            self.update_r_match_score()  # pour lancer la màj des scores
         return self.tournament_rounds_id_list
 
     def add_round_to_t_rounds_list(self, tournament_id, r_matches_list):  # vérifier que l'on obtient bien doc_id du Round
         """add new round to round matches list"""
         # PRINCIPE : je crée un round et je l'ajoute à la liste
-        round = RoundController.create_new_round(self, tournament_id, r_matches_list, round_id=0,
-                        end_date_time=0, start_date_time=0)
-        
-        self.tournament_rounds_id_list.append(round.round_id)  # on veut doc_id du Round
-        print('liste des doc_ids des rounds')
+        new_round = RoundController.create_new_round(self, tournament_id,
+                                                 r_matches_list,
+                                                 round_id=0,
+                                                 end_date_time=0,
+                                                 start_date_time=0)
+        print('L208 round_name :')  # VERIF
+        print(new_round.round_name)  # VERIF
+        Theround = Query()
+        new_round_id = (Round.rounds_db.get(
+            Theround.r_name == new_round.round_name
+            )).doc_id
+        print(new_round_id)
+        # ATTENTION : CLOPTURER LE TOUR AVANT DE CREER LE SUIVANT
+        self.tournament_rounds_id_list.append(new_round_id)  # 17/02 PB 'NoneType'
+        print('L217 liste des doc_ids des rounds')
         print(self.tournament_rounds_id_list)
+        round_id = new_round_id
+        self.closing_this_round(round_id)
         return self.tournament_rounds_id_list
 
     """ CODE du 08 02 2022"""
     # ROUND / matches list
     # matchs contiennent doc_ids Joueurs:
-    def creation_r_matches_list(self, tournament_id, r_matches_list, round_id):
+    def create_r_matches_list(self, tournament_id, r_matches_list, round_id):
         matches_nb = (len(self.tournament_players_id_list))/2
         # r_matches_list = []
         while len(r_matches_list) < matches_nb:
             if len(self.tournament_rounds_id_list) >= 1:
                 r_matches_list = self.create_next_round_matches_list(tournament_id)
-                """for i_roundmatch in next_round_matches: 
+                """for i_roundmatch in next_round_matches:
                     r_matches_list.append(i_roundmatch)
                     print('ajout i_roundmatch')  # VERIF"""
                 print(r_matches_list)  # VERIF
             else:
                 r_matches_list = self.create_first_rd_matches_list(tournament_id)  # variante self.create_first_round_matches_list
-                """for j_roundmatch in first_round_matches:
-                    r_matches_list.append(j_roundmatch)
-                    print('ajout j_roundmatch')  # VERIF"""
-                print('AFFICHAGE r_matches_list de la METHODE def creation_r_matches_list : ')  # VERIF
+                print('AFFICHAGE r_matches_list de la METHODE def create_r_matches_list : ')  # VERIF
                 print(r_matches_list)  # VERIF
             print(round_id)  # VERIF
             Round.update_r_matches_list(self, round_id, r_matches_list)
-        return r_matches_list  
-
+        return r_matches_list
 
     """ For rounds next to 1st round, matches players must be sorted
     by rank and total points. It is also  required to check that
     new pairs of players are different from previous matches pairs."""
-    
-    # MATCHS 1ST ROUND 
-    # TournamentController L282 **** MODIFIE/original
+
+    # MATCHS 1ST ROUND
+    # TournamentCtlr L282 **** MODIFIE/original
     """ def create_first_round_matches_list(self, tournament_id):  # MATCHS ac doc_ids joueurs
         # create matches for first round
         rank_sorted_p_list = self.sort_tournament_players_list_by_rank(tournament_id)
@@ -250,10 +261,10 @@ class TournamentController:
                 )
             )
         return first_round_matches"""
-    
-    # version 11/02/22 
+
+    # version 11/02/22
     """def create_first_round_matches_list(self, tournament_id):  # MATCHS ac doc_ids joueurs
-        # create matches for first round 
+        # create matches for first round
         rank_sorted_p_list = self.sort_tournament_players_list_by_rank(tournament_id)
         matches_qty = len(rank_sorted_p_list)/2
         # first_round_matches = []  # liste des matches 'entiers du 1er round
@@ -274,72 +285,72 @@ class TournamentController:
             print("AFFICHAGE L273 : first_round_matches[i] MATCHS ENTIERS ")
             print(self.first_round_matches[i])
             print('**** ----****----****----****')
-           
-        print(self.first_round_matches)    
+
+        print(self.first_round_matches)
         return self.first_round_matches"""
-    
-   # variante 14/02/2022 (+ réf L221)
+
+    # variante 14/02/2022 (+ réf L221)
     def create_first_rd_matches_list(self, tournament_id):  # MATCHS ac doc_ids joueurs
         """ create matches for first round """
         rank_sorted_p_list = self.sort_tournament_players_list_by_rank(tournament_id)
         matches_qty = len(rank_sorted_p_list)/2
         for i in range(0, int(matches_qty)):
-            match_player1=rank_sorted_p_list[i]['p_id']
-            match_player2=rank_sorted_p_list[i+int(matches_qty)]['p_id']
+            match_player1 = rank_sorted_p_list[i]['p_id']
+            match_player2 = rank_sorted_p_list[i+int(matches_qty)]['p_id']
             match = MatchController.create_new_match(self, match_player1,
-                                                  match_player2, 
-                                                  match_id=0, 
-                                                  player1_score=0, 
-                                                  player2_score=0)
+                                                     match_player2,
+                                                     match_id=0,
+                                                     player1_score=0,
+                                                     player2_score=0)
             match.create_match()
-            new_m_id = match.update_match_id()  # match.update_match_id()
+            new_m_id = match.update_match_id()  # match.update_match_id() - renvoie match id
             self.r_matches_list.append(new_m_id)  # self.r_matches_list.append(match.match_id)
             print(self.r_matches_list)
         return self.r_matches_list
-    
+
     def sort_tournament_players_list_by_rank(self, tournament_id):
         """sort by rank tournament players list"""
         # récupère la liste complète des éléments à trier
         self.tournament_players_id_list = self.create_tournament_players_id_list(tournament_id)
-        print(len(self.tournament_players_id_list))
+        print(len(self.tournament_players_id_list))  # VERIF : 8
         for pl_id in self.tournament_players_id_list:  # doc_ids
             t_full_player = Player.players_db.get(doc_id=pl_id)  # from doc_ids get full objects 'player'
             self.t_full_players_list.append(t_full_player)
 
         rank_sorted_p_list = sorted(self.t_full_players_list,
-                                    key=lambda k: k['p_rank']) 
+                                    key=lambda k: k['p_rank'])
         print('joueurs triés par classement')
         print(rank_sorted_p_list)  # contient des joueurs 'complets' (pas liste de doc_ids)'
         print('**********************************')
         return rank_sorted_p_list
 
     # MATCHS Next ROUND
-    # TournamentController
+    # TournamentCtlr
     def create_next_round_matches_list(self, tournament_id):  # MATCHS ac doc_ids joueurs
         """ create matches for round > 1 """
         next_round_p_pairs_list = self.compare_matches_p_pairs(tournament_id)
         matches_qty = len(next_round_p_pairs_list)
         for i in range(0, int(matches_qty)):  # ordre des paramères importants ou pas ?
-            match_player1=next_round_p_pairs_list[i] # player1 doc_id 
-            match_player2=next_round_p_pairs_list[i+1] 
+            match_player1 = next_round_p_pairs_list[i]  # player1 doc_id
+            match_player2 = next_round_p_pairs_list[i+1]
             match = MatchController.create_new_match(self,
-                                                     match_player1, # player1 doc_id 
+                                                     match_player1,  # player1 doc_id
                                                      match_player2,  # i+1 = next player
                                                      match_id=0,
                                                      player1_score=0,
-                                                    player2_score=0)
+                                                     player2_score=0)
             match.create_match()
             new_m_id = match.update_match_id()  # match.update_match_id()
             self.r_matches_list.append(new_m_id)  # self.r_matches_list.append(match.match_id)
             print(self.r_matches_list)
         return self.r_matches_list
 
-    def sort_tournament_players_id_list_by_points(self, tournament_id):
+    def sort_t_players_id_list_by_points(self, tournament_id):
         """ get tournament players list sorted by rank and total points """
         rank_sorted_p_list = self.sort_tournament_players_list_by_rank(tournament_id)
         points_sorted_p_list = sorted(rank_sorted_p_list,
-                                        key=lambda k: k['p_total_points'],
-                                        reverse=True)
+                                      key=lambda k: k['p_total_points'],
+                                      reverse=True)
         # print(points_sorted_p_list)  # 'full' players (not only doc_ids)
         self.points_sorted_p_id_list = []
         for p in points_sorted_p_list:  # parenthèses ou crochets autour de "int"
@@ -350,19 +361,19 @@ class TournamentController:
 
     def create_test_players_pair(self, i, tournament_id):
         # create pair of players to be tested
-        points_sorted_p_id_list = self.sort_tournament_players_id_list_by_points(self, tournament_id)
+        points_sorted_p_id_list = self.sort_t_players_id_list_by_points(self, tournament_id)
         test_pair = [points_sorted_p_id_list[0],
-                        points_sorted_p_id_list[i]]
+                     points_sorted_p_id_list[i]]
         return test_pair
 
     def create_prev_matches_players_id_list(self, tournament_id):  # A REVOIR (besoin : matchs précédents du même tournoi)
         # get list of previous matches pairs of players
-        
-        this_tournament = Tournament.tournaments_db.get(doc_id = tournament_id)
+
+        this_tournament = Tournament.tournaments_db.get(doc_id=tournament_id)
         tournmt_r_id_list = this_tournament['t_rounds_list']
         self.m_list = []
         for item in tournmt_r_id_list:
-            prev_matches = Match.matches_db.get(doc_id = item)
+            prev_matches = Match.matches_db.get(doc_id=item)
             self.m_list.append(prev_matches)
 
         nb_prev_matchs = len(self.m_list)
@@ -372,7 +383,8 @@ class TournamentController:
         return self.previous_pairs_list
 
     def compare_matches_p_pairs(self, tournament_id):
-        points_sorted_p_id_list = self.sort_tournament_players_id_list_by_points(self, tournament_id)
+        # check players pairs to get uniq players players (never compete in the same tournament)
+        points_sorted_p_id_list = self.sort_t_players_id_list_by_points(self, tournament_id)
         next_round_p_pairs_list = []  # list of pairs of players for next matches
         i = 1
 
@@ -385,7 +397,7 @@ class TournamentController:
             else:
                 # UNIQUE pair of players to be added to next round matches
                 next_round_p_pairs_list.append(testing_pair)
-                # update points_sorted_p_id_list
+                # update points_sorted_p_id_list (to avoid testing twice the same players)
                 del points_sorted_p_id_list[0]
                 del points_sorted_p_id_list[i-1]
 
@@ -399,65 +411,86 @@ class TournamentController:
         print(next_round_p_pairs_list)
         return next_round_p_pairs_list
 
-    # END ROUND - CODE màj v 09/02
+    def closing_this_round(self, round_id):
+        RoundView.ask_round_closing(self)
+        r_closing = input()
+        if r_closing == 'N':
+            print('REFUS USER de cloturer le tour en cours') # NE PAS LANCER DE NOUVEAU TOUR
+        else:
+            end_date_time = Round.close_round(self, round_id)  # lance clôture round, puis màj scores & pts
+            Round.update_round_end_date_time(self, round_id, end_date_time)
+            print(' AFFICHE Round.end_date_time :')
+            print(end_date_time)
+          
+
+    # END ANY ROUND - CODE màj v 09/02
     def end_round(self):  # A LA DEMANDE DU USER
         """ give closing date & time of a round """
-        # quel round de quel tournoi ?  
+        # quel round de quel tournoi ?
         RoundView.close_a_round()
-        round_id = self.request_round_id()
-        Round.close_round(round_id)  # lance la clôture du round choisi (dont 'date_time_end')
+        round_id = self.request_round_id() # identifie le round à clore
+        RoundController.close_round(round_id)  # lance la clôture du round choisi (dont 'date_time_end')
         self.update_r_match_score(self)  # pour lancer la màj des scores
 
     def request_round_id(self):
         # liste des tournois :
+        print('liste des tournois:')
         for t in Tournament.tournaments_db:
             print(t['t_name'])
-        RoundView.ask_tournament_name()
+        RoundView.ask_tournament_name(self)
         tournament_name = input()
-        tournament_requested = Tournament.tournaments_db.search(where('t_name') == tournament_name)
+        Thetournmt = Query()
+        rounds_id_list = Tournament.tournaments_db.get(
+            Thetournmt.t_name == tournament_name)['t_rounds_list']
         # liste des rounds
-        rounds_id_list = tournament_requested['t_rounds_list']
+        print('Liste des rounds du tournoi :')
+        print(rounds_id_list)  # VERIF
         for rd_id in rounds_id_list:
-            round_name = (Round.rounds_db.get(doc_id = rd_id))['r_name']
+            round_name = (Round.rounds_db.get(doc_id=rd_id))['r_name']
             print(round_name)
-        RoundView.ask_round_name()
+        RoundView.ask_round_name(self)
         round_name_req = input()
-        round_id = (Round.rounds_db.search(where('r_name') == round_name_req))['r_id']
+        Theround = Query()
+        round_id = (Round.rounds_db.get(Theround.r_name == round_name_req))['r_id']
         return round_id
 
-     # SCORES 09/02/2022
+    # SCORES 09/02/2022
     # update scores in r_matches_list AND matches_db
     def update_r_match_score(self):  # ancien code ds RoundController
         """ update round matches players'score"""
         MatchView.update_scores()
-        round_id = self.request_round_id()  #  récupère Tournoi et Round concernés
-        matches_list = (Round.rounds_db.get(doc_id = round_id))['rnd_matches_list']
-        
+        round_id = self.request_round_id()  # récupère Tournoi et Round concernés
+        matches_list = (Round.rounds_db.get(doc_id=round_id))['rnd_matches_list']
+
         # VERIFICATION intermédiaire
         print('liste des matchs pour màj des scores')
-        print(matches_list)
-        
+        print(matches_list)  # ok
+
         nbr_matches = len(matches_list)
         for i in range(0, nbr_matches):
-            # VERIFICATION 1/2
-            print('player1_score avant update')  # VERIF
-            print(RoundController.r_matches_list[i]['score_player1'])  # VERIF
-            print('player2_score avant update')  # VERIF
-            print(RoundController.r_matches_list[i]['score_player2'])  # VERIF
-            
-            player1_score = RoundController.ask_player1_score(i, matches_list)
-            player2_score = RoundController.ask_player2_score(i, matches_list)
+            # VERIFICATION 1/2 - SCORES avant màj
+            print('pr vérif, Id Match: ')
+            print(self.r_matches_list[i])
+            print('player1_score AVANT update :')  # VERIF - ok
+            init_score_pl1 = (Match.matches_db.get(doc_id = self.r_matches_list[i]))['score_player1']
+            print(init_score_pl1)
+            print('player2_score AVANT update')  # VERIF
+            init_score_pl2 = (Match.matches_db.get(doc_id = self.r_matches_list[i]))['score_player2']
+            print(init_score_pl2)
+
+            player1_score = self.ask_player1_score(i, matches_list)
+            player2_score = self.ask_player2_score(i, matches_list)
 
             # update r_matches_list
             RoundController.r_matches_list[i]['score_player1'] = player1_score
             RoundController.r_matches_list[i]['score_player2'] = player2_score
-            
+
             # VERIFICATION : comparaison visuelle 1/2 et 2/2
             print('player1_score APRES update')  # VERIF
             print(RoundController.r_matches_list[i]['score_player1'])  # VERIF
             print('player2_score APRES update')  # VERIF
             print(RoundController.r_matches_list[i]['score_player2'])  # VERIF
-            
+
             # update matches_db
             match_id = i
             Match.update_players_scores(match_id, player1_score, player2_score)
@@ -468,8 +501,8 @@ class TournamentController:
         """ get player1 's score"""
         # print "match PLAYER1-NAME / PLAYER2-NAME"
         print('match ' + matches_list[i]['chess_player1']['p_name']
-                        + " / "
-                        + matches_list[i]['chess_player2']['p_name'])
+                       + " / "
+                       + matches_list[i]['chess_player2']['p_name'])
 
         # print "joueur 1 : PLAYER1-NAME"
         print('joueur1: ' + matches_list[i]['chess_player1']['p_name'])
@@ -477,7 +510,7 @@ class TournamentController:
         MatchView.ask_score_player()
         player1_score = int(input('saisissez son score (0 ou 0.5 ou 1) : '))
         print('joueur1 : ' + matches_list[i]['chess_player1']['p_name']
-                            + ' score = ' + player1_score)
+                           + ' score = ' + player1_score)
 
         return player1_score
 
@@ -485,8 +518,8 @@ class TournamentController:
         """ get player2 's score"""
         # print "match PLAYER1-NAME / PLAYER2-NAME"
         print('match ' + matches_list[i]['chess_player1']['p_name']
-                        + " / "
-                        + matches_list[i]['chess_player2']['p_name'])
+                       + " / "
+                       + matches_list[i]['chess_player2']['p_name'])
 
         # print "joueur 2 : PLAYER2-NAME"
         print('joueur2 : '+matches_list[i]['chess_player2']['p_name'])
@@ -494,7 +527,7 @@ class TournamentController:
         MatchView.ask_score_player()
         player2_score = int(input('saisissez son score (0 ou 0.5 ou 1) : '))
         print('joueur2 : ' + matches_list[i]['chess_player2']['p_name']
-                            + ' score = ' + player2_score)
+                           + ' score = ' + player2_score)
         return player2_score
 
     # PLAYERS TOTAL POINTS
@@ -521,13 +554,13 @@ class TournamentController:
             # calculate match 1st player's new total of points & update its points in DB
             new_total_points_pl1 = new_points_pl1 + previous_points_pl1
             Player.players_db.update({'p_total_points': new_total_points_pl1},
-                                        doc_ids=[match_pl1_doc_id])
+                                     doc_ids=[match_pl1_doc_id])
 
             print('nouveau total de points Joueur 1')  # VERIF
             print(new_total_points_pl1)  # VERIF
             print('Vérif màj POINTS Joueur 1 : ')  # VERIF
             print(Player.players_db.get(doc_id=match_pl1_doc_id))  # VERIF
-            
+
             # do the same with match 2nd player
             match_pl2_doc_id = RoundController.r_matches_list[j]['chess_player2']
             player2 = Player.players_db.get(doc_id=match_pl2_doc_id)  # ou doc_ids=[]
@@ -537,19 +570,18 @@ class TournamentController:
             print(previous_points_pl2)  # VERIF
 
             new_points_pl2 = RoundController.r_matches_list[j]['score_player2']
-            
+
             print('nouveaux points Joueur 2')  # VERIF
             print(new_points_pl2)  # VERIF
-            
+
             new_total_points_pl2 = new_points_pl2 + previous_points_pl2
             Player.players_db.update({'p_total_points': new_total_points_pl2},
-                                        doc_ids=[match_pl2_doc_id])
-            
+                                     doc_ids=[match_pl2_doc_id])
+
             print('nouveau total de points Joueur 2')  # VERIF
             print(new_total_points_pl2)  # VERIF
             print('Vérif màj POINTS Joueur 2 : ')  # VERIF
             print(Player.players_db.get(doc_id=match_pl2_doc_id))  # VERIF
-
 
         PlayerController.update_players_ranking()
 
@@ -557,11 +589,11 @@ class TournamentController:
 class RoundController:
     def __init__(self):
         pass
-        
+
     # c'est l'utilisateur qui "crée" le tour => def ask_user_round_launch()
     """ CODE du 08 02 2022"""
     def create_new_round(self, tournament_id, r_matches_list, round_id=0,
-                     end_date_time=0, start_date_time=0):
+                         end_date_time=0, start_date_time=0):
         """ create a round """
         round = Round(round_id,
                       RoundController.give_round_name(self),
@@ -570,9 +602,15 @@ class RoundController:
                       end_date_time)
         round.create_round()
         self.round_id = Round.update_round_id(self)
-        self.r_matches_list = TournamentController.creation_r_matches_list(self, tournament_id, self.r_matches_list, self.round_id)
+        print('L579 round_id = ')  # VERIF
+        print(self.round_id)  # VERIF
+        self.r_matches_list = TournamentCtlr.create_r_matches_list(self,
+                                                                   tournament_id,
+                                                                   self.r_matches_list,
+                                                                   self.round_id)
         self.start_date_time = RoundController.start_round(self)
-        RoundController.update_start_date_and_time(self, self.start_date_time, self.round_id)
+        RoundController.update_start_date_and_time(self, self.start_date_time,
+                                                   self.round_id)
         # update end_date_time (def end_round) A LA DEMANDE DE CLOTURE DU TOUR
         return round
 
@@ -589,30 +627,39 @@ class RoundController:
 
     def update_start_date_and_time(self, start_date_time, round_id):
         Round.update_start_date_time(self, start_date_time, round_id)
+    
+    def close_round(self, round_id):
+        end_date_time = str(datetime.now())
+        self.update_round_end_date_time(round_id, end_date_time)
+        return end_date_time
 
-    # ANCIEN CODE - remplacé par CODE du 08/02 ds TournamentController
+    def update_round_end_date_time(self, round_id, end_date_time):
+        Round.update_round_end_date_time(self, round_id, end_date_time)
+    
+
+    # ANCIEN CODE - remplacé par CODE du 08/02 ds TournamentCtlr
     """def create_r_matches_list(self):
         # launch creation of the round's matches'list
-        TournamentController.rank_sorted_p_list = (
-            TournamentController.sort_tournament_players_list_by_rank(self)
+        TournamentCtlr.rank_sorted_p_list = (
+            TournamentCtlr.sort_tournament_players_list_by_rank(self)
             )
-        TournamentController.points_sorted_p_list = (
-            TournamentController.sort_tournament_players_id_list_by_points(
-                (self, TournamentController.rank_sorted_p_list)
+        TournamentCtlr.points_sorted_p_list = (
+            TournamentCtlr.sort_t_players_id_list_by_points(
+                (self, TournamentCtlr.rank_sorted_p_list)
                 )
             )
-        r_matches_list = TournamentController.add_match_to_r_matches_list(
-                TournamentController.rank_sorted_p_list,
-                TournamentController.points_sorted_p_list)
+        r_matches_list = TournamentCtlr.add_match_to_r_matches_list(
+                TournamentCtlr.rank_sorted_p_list,
+                TournamentCtlr.points_sorted_p_list)
         return r_matches_list
     """
-    
+
     # SCORES - ANCIEN CODE remplacé par CODE du 09/02
     # update scores in r_matches_list AND matches_db
     """def update_r_match_score(self):
         # update round matches players'score
         MatchView.update_scores()
-        
+
         nbr_matches = len(self.r_matches_list)
         for i in range(0, nbr_matches):
             player1_score = self.ask_player1_score(i, self.r_matches_list)
@@ -671,12 +718,12 @@ class MatchController:
         self.match_player2 = match_player2
 
     def create_new_match(self, match_player1, match_player2, match_id=0,
-                     player1_score=0, player2_score=0):
+                         player1_score=0, player2_score=0):
         """create one match"""
         match = Match(match_id,
                       match_player1,  # player's doc_id
-                      player1_score,
-                      match_player2,  # player's doc_id
+                      match_player2,
+                      player1_score,  # player's doc_id
                       player2_score)
         match.create_match()
         self.match_id = Match.update_match_id(self)
@@ -730,15 +777,15 @@ class PlayerController:
     def ask_player_ranking(self):
         """ get player_ranking from User through player_view """
         PlayerView.ask_player_ranking()
-        player_ranking = int(input())
-        return player_ranking
+        player_rank = int(input())
+        return player_rank
 
     def update_players_ranking(self):
-        player_request_id = self.request_player()
+        player_req_id = self.request_player()
         PlayerView.ask_player_ranking()
-        player_ranking = int(input())
-        new_player_ranking = Player.update_player_ranking(player_request_id, player_ranking)
-        return new_player_ranking
+        player_rank = int(input())
+        new_player_rank = Player.update_playr_rank(player_req_id, player_rank)
+        return new_player_rank
 
     def request_player(self):
         """search a player (by his name & firstname) into db"""
@@ -755,11 +802,9 @@ class PlayerController:
         # Search donne [{}] (liste contenant joueur),
         # mais 'get' donne directement le joueur {}
         print(searched_player)
-        if searched_player is None: 
+        if searched_player is None:
             print('Joueur absent de la base de données.')
             return searched_player
         else:
             print(searched_player.doc_id)  # player's DOC_ID
             return searched_player.doc_id
-        
-            

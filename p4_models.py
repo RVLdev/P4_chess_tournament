@@ -125,7 +125,6 @@ class Round:
     # end_date_time
     def close_round(self, round_id):
         end_date_time = str(datetime.now())
-        self.update_round_end_date_time(round_id, end_date_time)
         return end_date_time
 
     def update_round_end_date_time(self, round_id, end_date_time):
@@ -161,8 +160,8 @@ class Match:
             {
                 'm_id': self.match_id,
                 'chess_player1': self.match_player1,
-                'score_player1': self.player1_score,
                 'chess_player2': self.match_player2,
+                'score_player1': self.player1_score,
                 'score_player2': self.player2_score
             }
         )
@@ -191,14 +190,14 @@ class Match:
 class Player:
     """ defines an object 'player' : (shape, characteristics)"""
     def __init__(self, player_id, player_name, player_first_name,
-                 player_birth_date, player_gender, player_ranking,
+                 player_birth_date, player_gender, player_rank,
                  player_points_qty=0):
         self.player_id = player_id
         self.player_name = player_name
         self.player_first_name = player_first_name
         self.player_birth_date = player_birth_date
         self.player_gender = player_gender
-        self.player_ranking = player_ranking
+        self.player_rank = player_rank
         # sum of a player's scores (calcul dans TOURNOI):
         self.player_points_qty = player_points_qty
 
@@ -216,7 +215,7 @@ class Player:
                 'p_firstname': self.player_first_name,
                 'p_birthdate': self.player_birth_date,
                 'p_gender': self.player_gender,
-                'p_rank': self.player_ranking,
+                'p_rank': self.player_rank,
                 'p_total_points': self.player_points_qty
             }
         )
@@ -236,9 +235,9 @@ class Player:
                                doc_ids=[new_player_id])
         return new_player_id # ajout 04/02
 
-    def update_player_ranking(self, player_id, player_ranking):
+    def update_playr_rank(self, player_id, player_rank):
         """ update a player rank in DB through its ID"""
-        self.players_db.update({'p_rank': player_ranking},
+        self.players_db.update({'p_rank': player_rank},
                               doc_ids=[player_id])
 
     def delete_player(self, player_id):
