@@ -42,8 +42,8 @@ class Tournament:
             )
 
     def read_tournament(self, tournament_id):
-        self.tournaments_db.get(doc_id=tournament_id)
-        return Tournament()
+        that_tournament = self.tournaments_db.get(doc_id=tournament_id)
+        return that_tournament()
 
     def update_tournament_id(self):  # ok
         """ default new tournament id = 0
@@ -75,11 +75,11 @@ class Tournament:
 
 
 class Round:
-    def __init__(self, round_id, round_name, r_matches_list,
+    def __init__(self, round_id, round_name, r_matches_id_list,
                  start_date_time, end_date_time):
         self.round_id = round_id
         self.round_name = round_name
-        self.r_matches_list = r_matches_list
+        self.r_matches_id_list = r_matches_id_list
         self.start_date_time = start_date_time
         self.end_date_time = end_date_time
 
@@ -92,7 +92,7 @@ class Round:
         """ create a round """
         self.rounds_db.insert({'r_id': self.round_id,
                                'r_name': self.round_name,
-                               'rnd_matches_list': self.r_matches_list,
+                               'rnd_matches_list': self.r_matches_id_list,
                                'start_datentime': self.start_date_time,
                                'end_datentime': self.end_date_time,
                                })
@@ -104,8 +104,8 @@ class Round:
         self.rounds_db.update({'r_id': round_id}, doc_ids=[round_id])
         return round_id
     
-    def update_r_matches_list(self, round_id, r_matches_list) :
-        self.rounds_db.update({'rnd_matches_list': r_matches_list}, doc_ids=[round_id])
+    def update_r_matches_list(self, round_id, r_matches_id_list):
+        self.rounds_db.update({'rnd_matches_list': r_matches_id_list}, doc_ids=[round_id])
 
     def update_start_date_time(self, start_date_time, round_id):
         """ update start_date_time  """ 
@@ -172,8 +172,11 @@ class Match:
 
     def update_match_id(self):
         """ update match_id to be = doc_id """
-        new_match_id = self.matches_db.get(self.Thematch.m_id == 0).doc_id
-        self.matches_db.update({'m_id': new_match_id},
+        new_match_id = (self.matches_db.get(self.Thematch.m_id == 0)).doc_id
+        if new_match_id is None:
+            print('new_match_id ALREADY updated')  # ajout 18/02
+        else:
+            self.matches_db.update({'m_id': new_match_id},
                                doc_ids=[new_match_id])
         return new_match_id
 

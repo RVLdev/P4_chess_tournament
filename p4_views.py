@@ -3,42 +3,43 @@ class TournamentView:
         pass
 
     @classmethod
-    def ask_tournament_name(self):
+    def ask_tournament_name(cls):
         print('Entrez le nom du nouveau tournoi : ')
 
     @classmethod
-    def ask_tournament_place(self):
+    def ask_tournament_place(cls):
         print('Entrez le lieu du tournoi : ')
 
     @classmethod
-    def ask_tournament_date(self):
+    def ask_tournament_date(cls):
         print('Entrez la date du tournoi au format JJ/MM/AAAA :')
 
-    @classmethod
-    def get_rounds_list(self):
-        pass
-
-    def askfor_tournament_players(self):
+    """@classmethod
+    def ask_for_tournament_players(cls):
         print('Joueurs du tournoi')
-        print('Choisissez un joueur et entrez son numéro')
+        print('Choisissez un joueur et entrez son numéro')"""
 
     @classmethod
-    def ask_for_player_inclusion(self):
-        print('Liste des joueurs incomplète. Voulez_vous ajouter un joueur ?')
-        print('Saisissez O pour Oui, N pour Non : ')
+    def ask_for_player_inclusion(cls):
+        print("Liste des joueurs incomplète. Merci d'ajouter un joueur")
+        """print('Saisissez O pour Oui, N pour Non : ')"""
 
     @classmethod
-    def ask_tournament_description(self):
+    def ask_tournament_description(cls):
         print('Saisissez les commentaires : ')
 
     @classmethod
-    def ask_time_control(self):
+    def ask_time_control(cls):
         print('saisissez bullet, blitz ou coup rapide : ')
 
     @classmethod
-    def ask_tournament_rounds_qty(self):
+    def ask_tournament_rounds_qty(cls):
         print('Le nombre de tours par défaut est 4')
         print('Saisissez le nombre de tours souhaité : ')
+    
+    @classmethod  
+    def end_tournament(cls):
+        print('Tournoi terminé')
 
 
 class RoundView:
@@ -50,7 +51,7 @@ class RoundView:
         print('Saisissez O pour Oui, N pour Non : ')
 
     def ask_round_closing(self):  # 10/02 pr simulation
-        print('Voulez-vous terminer ce tour (O/N): ')
+        print('Voulez-vous terminer un tour (O/N): ')
 
     def close_a_round(self):
         print('Pour terminer un tour : suivez les instructions')  # à mettre ds INTERFACE
@@ -77,7 +78,7 @@ class MatchView:
 class PlayerView:
     def __init__(self):
         pass
-
+        
     @classmethod
     def ask_player_name(cls):
         print("Nom du joueur : ")
@@ -96,7 +97,11 @@ class PlayerView:
 
     @classmethod
     def ask_player_ranking(cls):
-        print("Classement : ")
+        print("Classement du joueur : ")
+    
+    @classmethod
+    def request_rank_update(cls):
+        print('Voulez_vous mettre à jour le classement des joueurs ? O/N')
 
     def ask_player_points_qty(self):  # A GERER DS TOURNOI
         print("Nombre de points : ")
