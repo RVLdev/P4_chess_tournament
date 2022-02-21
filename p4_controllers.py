@@ -661,3 +661,189 @@ class PlayerController:
         else:
             time.sleep(1)
             return searched_player.doc_id
+
+class Reporting:
+    def __init__(self):
+        pass
+    
+    """ Liste de tous les acteurs
+    1/ par ordre alphabétique
+    2/ par classement
+    """
+    def display_all_players_reporting(self):
+        all_players_list =[]
+        for pl in Player.players_db:
+            all_players_list.append(pl)
+
+        print('Liste de tous les acteurs triés :')
+        print('1 par ordre alphabétique')
+        print('2 par classement')
+        sorting_choice = input('Saisissez 1 ou 2 selon votre choix : ')
+
+        if sorting_choice == '1':
+            print('Liste de tous les acteurs triés par ordre alphabétique')
+            pl_list = (len(all_players_list))
+            players_name_list=[]
+            for i in range(0, pl_list):
+                players_name_list.append(all_players_list[i]['p_name'])
+            players_name_list.sort
+            print(players_name_list)
+
+            # détail :
+            print('En details : ')
+            print('----------')
+            for p in players_name_list:
+                print(Player.players_db.search(where('p_name') == p))
+
+        else:
+            print('Liste de tous les acteurs triés par classement')
+
+            rank_sorted_all_players_list = sorted(all_players_list,
+                                                key=lambda k: k['p_rank'])
+
+            pl_list = (len(rank_sorted_all_players_list))
+            players_name_list=[]
+            for j in range(0, pl_list):
+                players_name_list.append(rank_sorted_all_players_list[j]['p_name'])
+            print(players_name_list)
+
+            print('En details : ')
+            print('----------')
+            for j in rank_sorted_all_players_list:
+                print(j)
+
+
+    """ Liste de tous les joueurs d'un tournoi
+    1/ par ordre alphabétique
+    2/ par classement
+    """
+
+    def display_tournament_players(self):
+        tournament_players_list =[]
+        print("Liste des tournois : ")
+        for t in Tournament.tournaments_db:
+                print(t['t_name'])
+        tournament_name = TournamentCtlr.ask_tournament_name(self)
+        tournament_requested = (Tournament.tournaments_db.get(
+            where('t_name') == tournament_name))
+        
+        tournament_pl_id_list = []
+        for t in (tournament_requested['t_players_list']):
+            tournament_pl_id_list.append(t)   
+        
+        for pl_id in tournament_pl_id_list:
+            tournament_pl = Player.players_db.get(doc_id = pl_id)
+            tournament_players_list.append(tournament_pl)
+        
+        print('Liste de tous les joueurs du tournoi choisi :')
+        print('1 par ordre alphabétique')
+        print('2 par classement')
+        sorting_choice = input('Saisissez 1 ou 2 selon votre choix')
+        if sorting_choice == '1':
+            print('Liste de tous les acteurs triés par ordre alphabétique')
+            pl_list = (len(tournament_players_list))
+            players_name_list=[]
+            for i in range(0, pl_list):
+                players_name_list.append(tournament_players_list[i]['p_name'])
+            players_name_list.sort
+            print(players_name_list)
+
+            # détail :
+            print('En details : ')
+            print('----------')
+            for p in players_name_list:
+                print(Player.players_db.search(where('p_name') == p))
+                
+        else:
+            print('Liste de tous les acteurs triés par classement')
+            rank_sorted_tournament_players_list = sorted(tournament_players_list,
+                                                key=lambda k: k['p_rank'])
+
+            pl_list = (len(rank_sorted_tournament_players_list))
+            players_name_list=[]
+            for j in range(0, pl_list):
+                players_name_list.append(rank_sorted_tournament_players_list[j]['p_name'])
+            print(players_name_list)
+
+            print('En details : ')
+            print('----------')
+            for j in rank_sorted_tournament_players_list:
+                print(j)
+
+
+    """ Liste de tous les tournois """
+
+    def display_all_tournaments(self):      
+        print("Liste des tournois : ")
+        for t in Tournament.tournaments_db:
+                print(t['t_name'])
+        
+        print('En détails')
+        print('----------')
+        tournaments_list = []
+        for tournament in Tournament.tournaments_db:
+            tournaments_list.append(tournament)
+        for t in tournaments_list:
+            print(t)
+        
+        
+    """ Liste de tous les tours (rounds) d'un tournoi """
+
+    def tournament_all_rounds(self):
+        print("Liste des tournois : ")
+        for t in Tournament.tournaments_db:
+                print(t['t_name'])
+        tournament_name = TournamentCtlr.ask_tournament_name(self)
+        chosen_tournament = Tournament.tournaments_db.get(
+            where('t_name') == tournament_name)
+
+        print('Nom des tours du tournoi choisi :')
+        t_rounds_list = []
+        t_round_id_list = (chosen_tournament['t_rounds_list']) # doc_id
+        for rd_id in (t_round_id_list):
+            t_round = Round.rounds_db.get(doc_id = rd_id)
+            t_rounds_list.append(t_round)
+            print(t_round['r_name'])
+        print('En détails')
+        print('----------')
+        for t in (t_rounds_list):
+            print(t) 
+
+    """ Liste de tous les matchs d'un tournoi """
+
+    def tournament_all_matches(self):
+        print("Liste des tournois : ")
+        for t in Tournament.tournaments_db:
+                print(t['t_name'])
+        tournament_name = TournamentCtlr.ask_tournament_name(self)
+        chosen_tournament = Tournament.tournaments_db.get(
+            where('t_name') == tournament_name)
+        
+        matches_id_list = []
+        t_rounds_id_list = (chosen_tournament['t_rounds_list']) # doc_id des 4 rounds
+        
+        # récup liste de rounds entiers (à partir de liste id)
+        for rd_id in t_rounds_id_list:
+            one_round_matches_id = ((Round.rounds_db.get(doc_id = rd_id))['rnd_matches_list'])
+
+            for m_id in one_round_matches_id:
+                matches_id_list.append(m_id)
+
+        matches_list = []
+        for m in matches_id_list:
+            a_match = Match.matches_db.get(doc_id=m)
+            matches_list.append(a_match)
+            
+            chess_player1 = Match.matches_db.get(doc_id=m)['chess_player1']
+            name_pl1 = Player.players_db.get(doc_id=chess_player1)['p_name']
+            score_pl1 = Match.matches_db.get(doc_id=m)['score_player1']
+            
+            chess_player2 = Match.matches_db.get(doc_id=m)['chess_player2']
+            name_pl2 = Player.players_db.get(doc_id=chess_player2)['p_name']
+            score_pl2 = Match.matches_db.get(doc_id=m)['score_player1']
+            print('match id ' + str(m) + ' ' + str(name_pl1) + ' score: ' + str(score_pl1) 
+                  + ' contre ' + str(name_pl2) + ' score: ' + str(score_pl2))
+        
+        
+
+
