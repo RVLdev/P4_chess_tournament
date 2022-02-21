@@ -4,7 +4,7 @@ class TournamentView:
 
     @classmethod
     def ask_tournament_name(cls):
-        print('Entrez le nom du nouveau tournoi : ')
+        print('Entrez le nom du tournoi : ')
 
     @classmethod
     def ask_tournament_place(cls):
