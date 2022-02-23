@@ -18,7 +18,6 @@ from p4_views2202 import PlayerView
 from p4_views2202 import MatchView
 from p4_views2202 import ReportingView
 from p4_views2202 import Save_and_load_View
-from tinydb import TinyDB, where, Query
 from datetime import datetime
 
 def main():

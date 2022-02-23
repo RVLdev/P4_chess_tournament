@@ -1,5 +1,4 @@
 import time
-import sys
 from p4_interface import InterfaceController
 from p4_models import Tournament
 from p4_models import Round
