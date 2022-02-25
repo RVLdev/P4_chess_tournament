@@ -8,7 +8,7 @@ class Tournament:
                  tournament_date, tournament_description,
                  tournament_time_control, tournament_rounds_qty,
                  tournament_rounds_id_list, tournament_players_id_list):
-                 
+
         self.tournament_id = tournament_id
         self.tournament_name = tournament_name
         self.tournament_place = tournament_place
@@ -22,12 +22,14 @@ class Tournament:
 
         """creation of a database for tournaments """
         self.db = TinyDB('db.json')
-        self.Thetournmt = Query()
-        self.tournaments_db = self.db.table('tournaments_db')
+        Tournament.Thetournmt = Query()
+        Tournament.tournaments_db = self.db.table('tournaments_db')
+        self.db_backup = TinyDB('db_backup.json')
+        Tournament.t_db = self.db_backup.table('tournaments_db')
 
     def create_tournament(self):
         """create one tournament"""
-        self.tournaments_db.insert(
+        Tournament.tournaments_db.insert(
             {
                 't_id': self.tournament_id,
                 't_name': self.tournament_name,
@@ -42,36 +44,40 @@ class Tournament:
             )
 
     def read_tournament(self, tournament_id):
-        that_tournament = self.tournaments_db.get(doc_id=tournament_id)
+        that_tournament = Tournament.tournaments_db.get(doc_id=tournament_id)
         return that_tournament()
 
     def update_tournament_id(self):  # ok
         """ default new tournament id = 0
         Update tournament_id of a new tournament with DB doc_id value """
-        new_tournmt_id = self.tournaments_db.get(self.Thetournmt.t_id == 0)
+        new_tournmt_id = Tournament.tournaments_db.get(
+            Tournament.Thetournmt.t_id == 0)
         tournament_id = new_tournmt_id.doc_id
-        self.tournaments_db.update({'t_id': tournament_id},
-                                   doc_ids=[tournament_id])
+        Tournament.tournaments_db.update({'t_id': tournament_id},
+                                         doc_ids=[tournament_id])
         return tournament_id
 
     def update_tournament_rounds_qty(self,
                                      tournament_rounds_qty,
                                      tournament_id):  # ok
-        self.tournaments_db.update({'t_round_qty': tournament_rounds_qty},
-                                   doc_ids=[tournament_id])
+        Tournament.tournaments_db.update({
+            't_round_qty': tournament_rounds_qty},
+                                         doc_ids=[tournament_id])
 
     def update_tournament_players_id_list(self, tournament_players_id_list,
                                           tournament_id):  # ok
-        self.tournaments_db.update({'t_players_list': tournament_players_id_list},
-                                   doc_ids=[tournament_id])
+        Tournament.tournaments_db.update({
+            't_players_list': tournament_players_id_list},
+                                         doc_ids=[tournament_id])
 
     def update_tournament_rounds_id_list(self, tournament_rounds_id_list,
                                          tournament_id):
-        self.tournaments_db.update({'t_rounds_list': tournament_rounds_id_list},
-                                   doc_ids=[tournament_id])
-   
+        Tournament.tournaments_db.update({
+            't_rounds_list': tournament_rounds_id_list},
+                                         doc_ids=[tournament_id])
+
     def delete_tournament(self, tournament_id):
-        self.tournaments_db.remove(doc_id=tournament_id)
+        Tournament.tournaments_db.remove(doc_id=tournament_id)
 
 
 class Round:
@@ -80,55 +86,52 @@ class Round:
         self.round_id = round_id
         self.round_name = round_name
         self.r_matches_id_list = r_matches_id_list
+        r_matches_id_list = []
         self.start_date_time = start_date_time
         self.end_date_time = end_date_time
 
         """creation of a database for rounds """
         self.db = TinyDB('db.json')
-        self.Theround = Query()
-        self.rounds_db = self.db.table('rounds_db')
+        Round.Theround = Query()
+        Round.rounds_db = self.db.table('rounds_db')
+        self.db_backup = TinyDB('db_backup.json')
+        Round.r_db = self.db_backup.table('rounds_db')
 
     def create_round(self):
         """ create a round """
-        self.rounds_db.insert({'r_id': self.round_id,
-                               'r_name': self.round_name,
-                               'rnd_matches_list': self.r_matches_id_list,
-                               'start_datentime': self.start_date_time,
-                               'end_datentime': self.end_date_time,
-                               })
+        Round.rounds_db.insert({'r_id': self.round_id,
+                                'r_name': self.round_name,
+                                'rnd_matches_list': self.r_matches_id_list,
+                                'start_datentime': self.start_date_time,
+                                'end_datentime': self.end_date_time,
+                                })
 
     def update_round_id(self):
         """ update round_id to be = doc_id """
-        new_round_id = self.rounds_db.get(self.Theround.r_id == 0)
+        new_round_id = Round.rounds_db.get(Round.Theround.r_id == 0)
         round_id = new_round_id.doc_id
-        self.rounds_db.update({'r_id': round_id}, doc_ids=[round_id])
+        Round.rounds_db.update({'r_id': round_id}, doc_ids=[round_id])
         return round_id
-    
+
     def update_r_matches_list(self, round_id, r_matches_id_list):
-        self.rounds_db.update({'rnd_matches_list': r_matches_id_list}, doc_ids=[round_id])
+        Round.rounds_db.update({
+            'rnd_matches_list': r_matches_id_list}, doc_ids=[round_id])
 
     def update_start_date_time(self, start_date_time, round_id):
-        """ update start_date_time  """ 
-        self.rounds_db.update({'start_datentime': start_date_time}, doc_ids=[round_id])
-
-    """   # start_date_time DOIT ETRE "renseigné" A LA CREATION DE L'OBJET ROUND
-    def start_round(self):
-        # generate date & time for the begining of a round
-        start_date_time = str(datetime.now())
-        return start_date_time
-    """
+        """ update start_date_time  """
+        Round.rounds_db.update({
+            'start_datentime': start_date_time}, doc_ids=[round_id])
 
     def read_round(self, round_id):
-        self.rounds_db.get(doc_id=round_id)
+        Round.rounds_db.get(doc_id=round_id)
         return Round()
 
-    # end_date_time
     def close_round(self, round_id):
         end_date_time = str(datetime.now())
         return end_date_time
 
     def update_round_end_date_time(self, round_id, end_date_time):
-        self.rounds_db.update(
+        Round.rounds_db.update(
             {
                 'end_datentime': end_date_time
             },
@@ -136,7 +139,7 @@ class Round:
         )
 
     def delete_round(self, round_id):
-        self.rounds_db.remove(doc_id=round_id)
+        Round.rounds_db.remove(doc_id=round_id)
 
 
 class Match:
@@ -151,12 +154,14 @@ class Match:
 
         """creation of a database for matches """
         self.db = TinyDB('db.json')
-        self.Thematch = Query()
-        self.matches_db = self.db.table('matches_db')
+        Match.Thematch = Query()
+        Match.matches_db = self.db.table('matches_db')
+        self.db_backup = TinyDB('db_backup.json')
+        Match.m_db = self.db_backup.table('matches_db')
 
     def create_match(self):
         """ create (and save) a match"""
-        self.matches_db.insert(
+        Match.matches_db.insert(
             {
                 'm_id': self.match_id,
                 'chess_player1': self.match_player1,
@@ -167,27 +172,27 @@ class Match:
         )
 
     def read_match(self, match_id):
-        self.matches_db.get(doc_id=match_id)
+        Match.matches_db.get(doc_id=match_id)
         return Match()
 
     def update_match_id(self):
         """ update match_id to be = doc_id """
-        new_match_id = (self.matches_db.get(self.Thematch.m_id == 0)).doc_id
+        new_match_id = (Match.matches_db.get(Match.Thematch.m_id == 0)).doc_id
         if new_match_id is None:
             print('new_match_id ALREADY updated')  # ajout 18/02
         else:
-            self.matches_db.update({'m_id': new_match_id},
-                               doc_ids=[new_match_id])
+            Match.matches_db.update({
+                'm_id': new_match_id}, doc_ids=[new_match_id])
         return new_match_id
 
     def update_players_scores(self, match_id, player1_score, player2_score):
-        self.matches_db.update({'score_player1': player1_score},
-                               doc_ids=[match_id])
-        self.matches_db.update({'score_player2': player2_score},
-                               doc_ids=[match_id])
+        Match.matches_db.update({
+            'score_player1': player1_score}, doc_ids=[match_id])
+        Match.matches_db.update({
+            'score_player2': player2_score}, doc_ids=[match_id])
 
     def delete_match(self, match_id):
-        self.matches_db.remove(doc_id=match_id)
+        Match.matches_db.remove(doc_id=match_id)
 
 
 class Player:
@@ -203,15 +208,16 @@ class Player:
         self.player_rank = player_rank
         # sum of a player's scores (calcul dans TOURNOI):
         self.player_points_qty = player_points_qty
-
         """creation of a database for players """
         self.db = TinyDB('db.json')
-        self.Theplayer = Query()
-        self.players_db = self.db.table('players_db')
+        Player.Theplayer = Query()
+        Player.players_db = self.db.table('players_db')
+        self.db_backup = TinyDB('db_backup.json')
+        Player.p_db = self.db_backup.table('players_db')
 
     def create_player(self):
         """ create (and save to a database) a player """
-        self.players_db.insert(
+        Player.players_db.insert(
             {
                 'p_id': self.player_id,  # tinyDB doc_id de l'instance
                 'p_name': self.player_name,
@@ -224,25 +230,73 @@ class Player:
         )
 
     def read_player(self, player_id):
-        self.players_db.get(doc_id=player_id)
+        Player.players_db.get(doc_id=player_id)
         # db renvoie un dictionnaire idem "create"
         return Player()
 
     def update_player_id(self):
-        # update player_id to be = doc_id 
-        new_player_id = (self.players_db.get(self.Theplayer.p_id == 0)).doc_id
+        # update player_id to be = doc_id
+        new_player_id = (Player.players_db.get(
+            Player.Theplayer.p_id == 0)).doc_id
         if new_player_id is None:
             print('new_player_id ALREADY updated')
         else:
-            self.players_db.update({'p_id': new_player_id},
-                               doc_ids=[new_player_id])
-        return new_player_id # ajout 04/02
+            Player.players_db.update({
+                'p_id': new_player_id}, doc_ids=[new_player_id])
+        return new_player_id  # ajout 04/02
 
     def update_playr_rank(self, player_id, player_rank):
         """ update a player rank in DB through its ID"""
-        self.players_db.update({'p_rank': player_rank},
-                              doc_ids=[player_id])
+        Player.players_db.update({
+            'p_rank': player_rank}, doc_ids=[player_id])
 
     def delete_player(self, player_id):
         """remove a player from DB through its ID"""
-        self.players_db.remove(doc_id=player_id)
+        Player.players_db.remove(doc_id=player_id)
+
+
+class Save_and_load:
+    def __init__(self):
+        self.db = TinyDB('db.json')
+        self.db_backup = TinyDB('db_backup.json')
+        self.db_backup.drop_table('_default')
+
+    def save_in_db_backup(self):
+        self.db_backup = TinyDB('db_backup.json')
+        Player.p_db = self.db_backup.table('players_db')
+        Match.m_db = self.db_backup.table('matches_db')
+        Round.r_db = self.db_backup.table('rounds_db')
+        Tournament.t_db = self.db_backup.table('tournaments_db')
+        # empty backup
+        Player.p_db.truncate()
+        Match.m_db.truncate()
+        Round.r_db.truncate()
+        Tournament.t_db.truncate()
+
+        # save in db_backup
+        for each_player in Player.players_db:
+            Player.p_db.insert(each_player)
+        for each_match in Match.matches_db:
+            Match.m_db.insert(each_match)
+        for each_round in Round.rounds_db:
+            Round.r_db.insert(each_round)
+        for each_tournament in Tournament.tournaments_db:
+            Tournament.t_db.insert(each_tournament)
+
+    def load_db_backup(self):
+        # empty current DB tables
+        Player.players_db.truncate()
+        Match.matches_db.truncate()
+        Round.rounds_db.truncate()
+        Tournament.tournaments_db.truncate()
+
+        # load tables with backup
+        for each_player in Player.p_db:
+            Player.players_db.insert(each_player)
+        for each_match in Match.m_db:
+            Match.matches_db.insert(each_match)
+        for each_round in Round.r_db:
+            Round.rounds_db.insert(each_round)
+        for each_tournament in Tournament.t_db:
+            Tournament.tournaments_db.insert(each_tournament)
+        self.db.drop_table('_default')
