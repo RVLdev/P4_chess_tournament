@@ -98,7 +98,6 @@ class TournamentCtlr:
         # load tournament_rounds_qty update into DB
         Tournament.update_tournament_rounds_qty(self, tournament_rounds_qty,
                                                 tournament_id)
-        """TournamentCtlr.create_tournament_players_id_list(self, tournament_id)"""
         return tournament_rounds_qty
 
     def create_tournament_players_id_list(self, tournament_id):  # doc_ids
@@ -190,6 +189,8 @@ class TournamentCtlr:
                                                     tournament_id)
 
     def create_a_tournament_round(self):
+        db = TinyDB('db.json')
+        Tournament.tournaments_db = db.table('tournaments_db')
         # liste des tournois :
         TournamentView.display_tournaments_list()
         for t in Tournament.tournaments_db:
@@ -199,12 +200,16 @@ class TournamentCtlr:
         Thetournmt = Query()
         tournament_id = (Tournament.tournaments_db.get(
             Thetournmt.t_name == tournament_name))['t_id']
+        Tournament.tournament_rounds_id_list = (Tournament.tournaments_db.get(
+            doc_id=tournament_id))['t_rounds_list']
+        print('tournament_rounds_id_list')
+        print(Tournament.tournament_rounds_id_list)
         round_nb = (len(Tournament.tournament_rounds_id_list))
         if round_nb < 4:
-            if round_nb > 1:
-                self.create_next_rounds(tournament_id)
+            if round_nb >= 1:
+                TournamentCtlr.create_next_round(self, tournament_id)
             else:
-                self.create_first_round(self, tournament_id)
+                TournamentCtlr.create_first_round(self, tournament_id)
 
         else:
             print('Tous les  tours de CE tournoi sont déjà créés')
@@ -338,6 +343,9 @@ class TournamentCtlr:
 
     def sort_tournament_players_list_by_rank(self, tournament_id):
         """sort by rank tournament players list"""
+        db = TinyDB('db.json')
+        Player.players_db = db.table('players_db')
+
         # récupère la liste complète des éléments à trier
         self.tournament_players_id_list = (Tournament.tournaments_db.get(
             doc_id=tournament_id))['t_players_list']
@@ -406,10 +414,12 @@ class TournamentCtlr:
         return test_pair
 
     def create_prev_matches_players_id_list(self, tournament_id):
+        db = TinyDB('db.json')
+        Match.matches_db = db.table('matches_db')
+
         # get list of previous matches pairs of players
         this_tournament = Tournament.tournaments_db.get(doc_id=tournament_id)
         tournmt_r_id_list = this_tournament['t_rounds_list']
-
         rd_match_id_list = []
         for item in tournmt_r_id_list:
             rd_match_id = (Round.rounds_db.get(doc_id=item)
@@ -504,7 +514,7 @@ class TournamentCtlr:
         return end_date_time
 
     def closing_a_round(self):
-        round_id = self.request_round_id()
+        round_id = TournamentCtlr.request_round_id(self)
         RoundView.display_round_date_time_end(self)
         end_date_time = RoundController.close_round(self, round_id)
         # load round_end_date_time into DB
@@ -555,7 +565,7 @@ class TournamentCtlr:
 
     def update_matches_scores_players_points(self):
         """ update a round matches players'score and players'total points"""
-        round_id = self.request_round_id()  # get relevant Tournament & Round
+        round_id = TournamentCtlr.request_round_id(self)  # get relevant Tournament & Round
         TournamentCtlr.updating_this_r_scores(self, round_id)
 
         Save_and_load_View.ask_programm_saving(self)  # ******* SVG **
@@ -567,6 +577,9 @@ class TournamentCtlr:
 
     def request_round_id(self):
         # liste des tournois :
+        db = TinyDB('db.json')
+        Tournament.tournaments_db = db.table('tournaments_db')
+        Round.rounds_db = db.table('rounds_db')
         print('Liste des tournois:')
         for t in Tournament.tournaments_db:
             print(t['t_name'])
