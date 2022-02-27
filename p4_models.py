@@ -262,6 +262,12 @@ class Save_and_load:
         self.db_backup.drop_table('_default')
 
     def save_in_db_backup(self):
+        db = TinyDB('db.json')
+        Tournament.tournaments_db = db.table('tournaments_db')
+        Round.rounds_db = db.table('rounds_db')
+        Match.matches_db = db.table('matches_db')
+        Player.players_db = db.table('players_db')
+        
         self.db_backup = TinyDB('db_backup.json')
         Player.p_db = self.db_backup.table('players_db')
         Match.m_db = self.db_backup.table('matches_db')
@@ -276,14 +282,27 @@ class Save_and_load:
         # save in db_backup
         for each_player in Player.players_db:
             Player.p_db.insert(each_player)
-        for each_match in Match.matches_db:
-            Match.m_db.insert(each_match)
-        for each_round in Round.rounds_db:
-            Round.r_db.insert(each_round)
         for each_tournament in Tournament.tournaments_db:
             Tournament.t_db.insert(each_tournament)
+        for each_round in Round.rounds_db:
+            Round.r_db.insert(each_round)
+        for each_match in Match.matches_db:
+            Match.m_db.insert(each_match)
+
 
     def load_db_backup(self):
+        db = TinyDB('db.json')
+        Tournament.tournaments_db = db.table('tournaments_db')
+        Round.rounds_db = db.table('rounds_db')
+        Match.matches_db = db.table('matches_db')
+        Player.players_db = db.table('players_db')
+        
+        self.db_backup = TinyDB('db_backup.json')
+        Player.p_db = self.db_backup.table('players_db')
+        Match.m_db = self.db_backup.table('matches_db')
+        Round.r_db = self.db_backup.table('rounds_db')
+        Tournament.t_db = self.db_backup.table('tournaments_db')
+        
         # empty current DB tables
         Player.players_db.truncate()
         Match.matches_db.truncate()
@@ -299,4 +318,4 @@ class Save_and_load:
             Round.rounds_db.insert(each_round)
         for each_tournament in Tournament.t_db:
             Tournament.tournaments_db.insert(each_tournament)
-        self.db.drop_table('_default')
+        db.drop_table('_default')

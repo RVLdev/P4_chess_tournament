@@ -29,6 +29,10 @@ class InterfaceView:
         print("Voulez_vous ajouter 8 joueurs à ce tournoi (O/N) ? ")
 
     @classmethod
+    def ask_add_one_player(cls):
+        print("Voulez_vous ajouter 1 joueurs à ce tournoi (O/N) ? ")
+
+    @classmethod
     def ask_for_first_round_launch(cls):
         print('Voulez_vous lancer le 1er tour ?')
 
@@ -67,6 +71,14 @@ class InterfaceView:
         print('Que souhaitez-vous faire ?')
         print('1 Sauvegarder')
         print('2 Charger une sauvegarde')
+
+    @classmethod
+    def program_saved(cls):
+        print('Sauvegarde effectuée')
+
+    @classmethod
+    def backup_loaded(cls):
+        print('Sauvegarde chargée')
 
     @classmethod
     def choice_unavailable(cls):
@@ -113,6 +125,10 @@ class TournamentView:
     @classmethod
     def ask_for_player_inclusion(cls):
         print("Voulez_vous ajouter des joueurs à ce tournoi (O/N) ? ")
+        
+    @classmethod
+    def display_t_players_list_is_full(cls):   
+        print('La liste des joueurs de ce tournoi est complète')
 
     @classmethod
     def display_rounds_list_full(cls):
@@ -204,42 +220,42 @@ class ReportingView:
         pass
 
     def one_tournament_players_list(self):
-        print("Reporting : Liste de tous joueurs d'un tournoi")
+        print("\nReporting : Liste de tous joueurs d'un tournoi")
 
     def all_tournaments_list(self):
-        print("Reporting : Liste de tous les tournois")
+        print('\nReporting : Liste de tous les tournois')
 
     def one_tournament_rounds_list(self):
-        print("Reporting : Liste des tours ('rounds') d'un tournoi")
+        print("\nReporting : Liste des tours ('rounds') d'un tournoi")
 
     def one_tournament_matches_list(self):
-        print("Reporting : Liste des matches d'un tournoi")
+        print("\nReporting : Liste des matches d'un tournoi")
 
     def display_all_players_reporting(self):
-        print('Reporting : liste de tous les joueurs')
+        print('\nReporting : liste de tous les joueurs')
         print('1 triés par ordre alphabétique')
         print('2 triés par classement')
         print('Saisissez 1 ou 2 selon votre choix : ')
 
     def display_all_players_alphabetical_order(self):
-        print('Liste de tous les joueurs triés par ordre alphabétique')
+        print('\nListe de tous les joueurs triés par ordre alphabétique')
 
     def display_all_players_alphabetical_order_details(self):
         print('En detail : ')
         print('----------')
 
     def display_all_players_by_rank(self):
-        print('Liste de tous les joueurs triés par classement')
+        print('\nListe de tous les joueurs triés par classement')
 
     def display_all_players_by_rank_details(self):
         print('En detail : ')
         print('----------')
 
     def display_tournaments_list(self):
-        print("Liste des tournois : ")
+        print("\nListe des tournois : ")
 
     def display_chosen_tournament_players(self):
-        print('Liste de tous les joueurs du tournoi choisi :')
+        print('\nListe de tous les joueurs du tournoi choisi :')
         print('1 par ordre alphabétique')
         print('2 par classement')
         print('Saisissez 1 ou 2 selon votre choix : ')
@@ -249,14 +265,14 @@ class ReportingView:
         print('----------')
 
     def chosen_t_rounds_names_list(self):
-        print('Nom des tours du tournoi choisi :')
+        print('\nNom des tours du tournoi choisi :')
 
     def chosen_t_rounds_details(self):
         print('En detail : ')
         print('----------')
 
     def chosen_round_matches_list(self):
-        print('Liste des matchs du tour choisi')
+        print('\nListe des matchs du tour choisi')
 
 
 class Save_and_load_View:
@@ -265,6 +281,8 @@ class Save_and_load_View:
 
     def ask_programm_saving(self):
         print("Voulez-vous faire une sauvegarde ? (O/N)")
+        
+
 
     def ask_backup_loading(self):
         print("Voulez-vous charger une sauvegarde du programme ? (O/N)")

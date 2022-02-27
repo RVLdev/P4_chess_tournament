@@ -168,11 +168,16 @@ class InterfaceController:
                     pass  # self.t_launch()
 
             elif start_menu_choice == '3':  # 3 J : + un joueur à 1 tournoi'
-                TournamentCtlr.add_a_player_to_a_tournament(self)
-                Save_and_load_View.ask_programm_saving(self)  # ******* SVG **
-                prog_saving = input()
-                if prog_saving == 'O':
-                    Save_and_load_Ctrl.save_program(self)
+                InterfaceView.ask_add_one_player()  # ajouer 8 joueurs ?
+                add_one_players = input()
+                if add_one_players == 'O':
+                    TournamentCtlr.add_a_player_to_a_tournament(self)
+                    Save_and_load_View.ask_programm_saving(self)  # ******* SVG **
+                    prog_saving = input()
+                    if prog_saving == 'O':
+                        Save_and_load_Ctrl.save_program(self)
+                    else:
+                        pass
                 else:
                     pass  # self.t_launch()
 
@@ -237,8 +242,13 @@ class InterfaceController:
                     'Entrez le numero correspondant : ')
                 if save_or_load_choice == '1':
                     Save_and_load_Ctrl.save_program(self)
+                    time.sleep(2)
+                    InterfaceView.program_saved()
+                    time.sleep(5)
                 elif save_or_load_choice == '2':
                     Save_and_load_Ctrl.load_progam(self)
+                    InterfaceView.backup_loaded()
+                    time.sleep(5)
                 else:
                     pass  # self.t_launch()
 

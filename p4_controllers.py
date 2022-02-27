@@ -117,6 +117,9 @@ class TournamentCtlr:
         return tournament_players_id_list
 
     def add_a_player_to_a_tournament(self):
+        db = TinyDB('db.json')
+        Tournament.tournaments_db = db.table('tournaments_db')
+        
         # d'abord récupérer self.tournament_players_id_list
         # liste des tournois :
         print('Liste des tournois:')
@@ -125,14 +128,26 @@ class TournamentCtlr:
         RoundView.ask_tournament_name(self)
         tournament_name = input()
         Thetournmt = Query()
-        self.tournament_players_id_list = (Tournament.tournaments_db.get(
+        # tournament_players_id_list = []
+        tournament_players_id_list = (Tournament.tournaments_db.get(
             Thetournmt.t_name == tournament_name))['t_players_list']
-
-        tournament_id = (Tournament.tournaments_db.get(
-            Thetournmt.t_name == tournament_name))['t_id']
-
-        TournamentCtlr.add_player_to_tournament(self, tournament_id)
-        return
+        if len(tournament_players_id_list) < 8:
+            tournament_id = (Tournament.tournaments_db.get(
+                Thetournmt.t_name == tournament_name))['t_id']
+            TournamentCtlr.add_player_to_tournament(
+                self, tournament_players_id_list, tournament_id)
+            while len(tournament_players_id_list) < 8:
+                TournamentView.ask_for_player_inclusion()
+                add_pl = input()
+                if add_pl =='O' :
+                    TournamentCtlr.add_player_to_tournament(
+                        self, tournament_players_id_list, tournament_id)
+                else:
+                    return tournament_players_id_list
+            
+        else:
+            TournamentView.display_t_players_list_is_full()
+        return tournament_players_id_list
 
     def add_player_to_tournament(self, tournament_players_id_list,
                                  tournament_id):
@@ -798,7 +813,11 @@ class PlayerController:
 
 class ReportingController:
     def __init__(self):
-        pass
+        db = TinyDB('db.json')
+        Tournament.tournaments_db = db.table('tournaments_db')
+        Round.rounds_db = db.table('rounds_db')
+        Match.matches_db = db.table('matches_db')
+        Player.players_db = db.table('players_db')
 
     """ List of all participants
     1/ by alphabetical order
@@ -806,6 +825,9 @@ class ReportingController:
     """
 
     def display_all_players_reporting(self):
+        db = TinyDB('db.json')
+        Player.players_db = db.table('players_db')
+
         all_players_list = []
         for pl in Player.players_db:
             all_players_list.append(pl)
@@ -822,6 +844,7 @@ class ReportingController:
                 players_name_list.append(all_players_list[i]['p_name'])
             players_name_list.sort
             print(players_name_list)
+            time.sleep(2)
 
             # détails :
             ReportingView.display_all_players_alphabetical_order_details(self)
@@ -829,6 +852,7 @@ class ReportingController:
             print('----------')"""
             for p in players_name_list:
                 print(Player.players_db.search(where('p_name') == p))
+            time.sleep(5)
 
         else:
             ReportingView.display_all_players_by_rank(self)
@@ -843,18 +867,24 @@ class ReportingController:
                 players_name_list.append(
                     rank_sorted_all_players_list[j]['p_name'])
             print(players_name_list)
+            time.sleep(2)
 
             ReportingView.display_all_players_by_rank_details(self)
             """print('En détail : ')
             print('----------')"""
             for j in rank_sorted_all_players_list:
                 print(j)
+            time.sleep(5)
 
     """ List of all players of ONE tournament
     1/ by alphabetical order
     2/ by ranking
     """
     def display_tournament_players(self):
+        db = TinyDB('db.json')
+        Tournament.tournaments_db = db.table('tournaments_db')
+        Player.players_db = db.table('players_db')
+
         ReportingView.one_tournament_players_list(self)
         tournament_players_list = []
         ReportingView.display_tournaments_list(self)
@@ -887,6 +917,7 @@ class ReportingController:
                 players_name_list.append(tournament_players_list[i]['p_name'])
             players_name_list.sort
             print(players_name_list)
+            time.sleep(5)
 
             # détails :
             ReportingView.display_all_players_alphabetical_order_details(self)
@@ -894,6 +925,7 @@ class ReportingController:
             print('----------')"""
             for p in players_name_list:
                 print(Player.players_db.search(where('p_name') == p))
+            time.sleep(5)
 
         else:
             ReportingView.display_all_players_by_rank(self)
@@ -907,20 +939,26 @@ class ReportingController:
                 players_name_list.append(
                     rank_sorted_tournament_players_list[j]['p_name'])
             print(players_name_list)
+            time.sleep(5)
 
             ReportingView.display_all_players_by_rank_details(self)
             print('En détail : ')
             print('----------')
             for j in rank_sorted_tournament_players_list:
                 print(j)
+            time.sleep(5)
 
     """ List of all tournaments """
     def display_all_tournaments(self):
+        db = TinyDB('db.json')
+        Tournament.tournaments_db = db.table('tournaments_db')
+
         ReportingView.all_tournaments_list(self)
         ReportingView.display_tournaments_list(self)
         """print("Liste des tournois : ")"""
         for t in Tournament.tournaments_db:
             print(t['t_name'])
+        time.sleep(2)
 
         ReportingView.display_tournaments_list_details(self)
         """print('En détail')
@@ -930,13 +968,19 @@ class ReportingController:
             tournaments_list.append(tournament)
         for t in tournaments_list:
             print(t)
+        time.sleep(5)
 
     """ List of all rounds of ONE tournament """
     def tournament_all_rounds(self):
+        db = TinyDB('db.json')
+        Tournament.tournaments_db = db.table('tournaments_db')
+        Round.rounds_db = db.table('rounds_db')
+
         ReportingView.one_tournament_rounds_list(self)
         ReportingView.display_tournaments_list(self)
         for t in Tournament.tournaments_db:
             print(t['t_name'])
+        time.sleep(2)
         tournament_name = TournamentCtlr.ask_tournament_name(self)
         chosen_tournament = Tournament.tournaments_db.get(
             where('t_name') == tournament_name)
@@ -948,18 +992,27 @@ class ReportingController:
             t_round = Round.rounds_db.get(doc_id=rd_id)
             t_rounds_list.append(t_round)
             print(t_round['r_name'])
+        time.sleep(2)
 
         ReportingView.chosen_t_rounds_details(self)
         for t in (t_rounds_list):
             print(t)
+        time.sleep(5)
 
     """ List of all matches of ONE tournament """
 
     def tournament_all_matches(self):
+        db = TinyDB('db.json')
+        Tournament.tournaments_db = db.table('tournaments_db')
+        Round.rounds_db = db.table('rounds_db')
+        Match.matches_db = db.table('matches_db')
+        Player.players_db = db.table('players_db')
+
         ReportingView.one_tournament_matches_list(self)
         ReportingView.display_tournaments_list(self)
         for t in Tournament.tournaments_db:
             print(t['t_name'])
+        time.sleep(2)
         tournament_name = TournamentCtlr.ask_tournament_name(self)
         chosen_tournament = Tournament.tournaments_db.get(
             where('t_name') == tournament_name)
@@ -993,7 +1046,8 @@ class ReportingController:
                   + ' score: ' + str(score_pl1)
                   + ' contre ' + str(name_pl2)
                   + ' score: ' + str(score_pl2))
-
+        time.sleep(5)
+        
 
 class Save_and_load_Ctrl:
     def __init__(self):
@@ -1002,6 +1056,7 @@ class Save_and_load_Ctrl:
     def save_program(self):
         # save all data of the whole program
         Save_and_load.save_in_db_backup(self)
+
 
     def load_progam(self):
         # load a backup of the program
