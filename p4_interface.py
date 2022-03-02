@@ -1,11 +1,11 @@
 import time
 import sys
-from p4_v2controllers import TournamentCtlr
-from p4_v2controllers import PlayerController
-from p4_v2controllers import ReportingController
-from p4_v2controllers import Save_and_load_Ctrl
-from p4_views_v2inchangee import InterfaceView
-from p4_views_v2inchangee import Save_and_load_View
+from p4_controllers import TournamentCtlr
+from p4_controllers import PlayerController
+from p4_controllers import ReportingController
+from p4_controllers import Save_and_load_Ctrl
+from p4_views import InterfaceView
+from p4_views import Save_and_load_View
 
 
 def main():

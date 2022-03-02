@@ -55,8 +55,11 @@ class Tournament:
     def update_tournament_id(self):  # ok
         """ default new tournament id = 0
         Update tournament_id to become its doc_id value """
+        db_all_t = TinyDB('db_all_t.json')
+        Tournament.all_tournaments_db = db_all_t.table('all_tournaments_db')
+        Thetournmt = Query()
         new_tournmt_id = Tournament.all_tournaments_db.get(
-            Tournament.Thetournmt.t_id == 0)
+            Thetournmt.t_id == 0)
         tournament_id = new_tournmt_id.doc_id
         Tournament.all_tournaments_db.update({'t_id': tournament_id},
                                              doc_ids=[tournament_id])

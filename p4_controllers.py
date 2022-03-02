@@ -1,15 +1,15 @@
 # version pour correction stockage .json
 import time
-from p4_v2models import Tournament
-from p4_v2models import Round
-from p4_v2models import Match
-from p4_v2models import Player
-from p4_v2models import Save_and_load
-from p4_views_v2inchangee import TournamentView
-from p4_views_v2inchangee import RoundView
-from p4_views_v2inchangee import PlayerView
-from p4_views_v2inchangee import ReportingView
-from p4_views_v2inchangee import Save_and_load_View
+from p4_models import Tournament
+from p4_models import Round
+from p4_models import Match
+from p4_models import Player
+from p4_models import Save_and_load
+from p4_views import TournamentView
+from p4_views import RoundView
+from p4_views import PlayerView
+from p4_views import ReportingView
+from p4_views import Save_and_load_View
 from tinydb import TinyDB, where, Query
 from datetime import datetime
 
@@ -156,8 +156,6 @@ class TournamentCtlr:
             tournament_players_id_list.append(id)
 
         if len(tournament_players_id_list) < 8:
-            """tournament_id = (Tournament.tournaments_db.get(
-                Thetournmt.t_name == tournament_name))['t_id']"""
             TournamentCtlr.add_player_to_tournament(
                 self, tournament_players_id_list, tournament_id)
             while len(tournament_players_id_list) < 8:
@@ -194,12 +192,7 @@ class TournamentCtlr:
             tournament_players_id_list.append(new_player_id)
             Tournament.update_tournament_players_id_list(
                 self, tournament_players_id_list, tournament_id)
-            Save_and_load_View.ask_programm_saving(self)
-            prog_saving = input()
-            if prog_saving == 'O':
-                Save_and_load_Ctrl.save_program(self)
-            else:
-                pass
+
         # if player in global DB, add it to tournament
         else:
             db_all_t = TinyDB('db_all_t.json')
@@ -215,12 +208,6 @@ class TournamentCtlr:
             Tournament.update_tournament_players_id_list(
                 self, tournament_players_id_list, tournament_id)
             print(tournament_players_id_list)
-            Save_and_load_View.ask_programm_saving(self)
-            prog_saving = input()
-            if prog_saving == 'O':
-                Save_and_load_Ctrl.save_program(self)
-            else:
-                pass
         return tournament_players_id_list
 
     def update_tournament_rd_id_list(self, tournament_rounds_id_list,
@@ -558,12 +545,6 @@ class TournamentCtlr:
             match_id = r_matches_id_list[i]
             Match.update_players_scores(self, tournament_id, match_id,
                                         player1_score, player2_score)
-            Save_and_load_View.ask_programm_saving(self)
-            prog_saving = input()
-            if prog_saving == 'O':
-                Save_and_load_Ctrl.save_program(self)
-            else:
-                pass
 
     def update_matches_scores_players_points(self):
         """ update a round matches players'score and players'total points"""
@@ -605,13 +586,6 @@ class TournamentCtlr:
         else:
             TournamentCtlr.updating_this_r_scores(self, tournament_id,
                                                   round_id)
-
-        Save_and_load_View.ask_programm_saving(self)
-        prog_saving = input()
-        if prog_saving == 'O':
-            Save_and_load_Ctrl.save_program(self)
-        else:
-            pass
 
     def request_tournament_id(self):
         """get a tournament id from its name"""
