@@ -29,27 +29,6 @@ class TournamentCtlr:
         self.points_sorted_p_id_list = []
         self.m_list = []
         self.previous_pairs_list = []
-    """
-        self.db_all_t = TinyDB('db_all_t.json')  ##
-        Tournament.all_tournaments_db = self.db_all_t.table(
-            'all_tournaments_db')  ##
-
-        self.db = TinyDB('db'+str(tournament_id)+'.json')
-        self.Thetournmt = Query()
-        self.tournaments_db = self.db.table('tournaments_db')
-        self.Theplayer = Query()
-        self.players_db = self.db.table('players_db')
-        self.Theround = Query()
-        self.rounds_db = self.db.table('rounds_db')
-        self.Thematch = Query()
-        self.matches_db = self.db.table('matches_db')
-
-        self.db_backup = TinyDB('db_backup.json')
-        self.p_db = self.db_backup.table('players_db')
-        self.m_db = self.db_backup.table('matches_db')
-        self.r_db = self.db_backup.table('rounds_db')
-        self.t_db = self.db_backup.table('tournaments_db')
-    """
 
     def read_a_tournament(self):
         tournament_id = TournamentCtlr.request_tournament_id(self)
@@ -208,6 +187,7 @@ class TournamentCtlr:
             Tournament.update_tournament_players_id_list(
                 self, tournament_players_id_list, tournament_id)
             print(tournament_players_id_list)
+            TournamentView.separator()
         return tournament_players_id_list
 
     def update_tournament_rd_id_list(self, tournament_rounds_id_list,
@@ -218,22 +198,11 @@ class TournamentCtlr:
                                                     tournament_id)
 
     def create_a_tournament_round(self):
-        """ create any round for a chosen tournament"""
-        db_all_t = TinyDB('db_all_t.json')
-        Tournament.all_tournaments_db = db_all_t.table('all_tournaments_db')
+        """ create any round for a chosen tournament""" 
         tournament_id = TournamentCtlr.request_tournament_id(self)
+        
         db = TinyDB('db'+str(tournament_id)+'.json')
         Tournament.tournaments_db = db.table('tournaments_db')
-
-        # get tournament ID in global DB
-        TournamentView.display_tournaments_list()
-        for t in Tournament.all_tournaments_db:
-            print(t['t_name'])
-        RoundView.ask_tournament_name(self)
-        tournament_name = input()
-        Thetournmt = Query()
-        tournament_id = (Tournament.all_tournaments_db.get(
-            Thetournmt.t_name == tournament_name))['t_id']
         Tournament.tournament_rounds_id_list = (Tournament.tournaments_db.get(
             doc_id=tournament_id))['t_rounds_list']
 
@@ -274,7 +243,7 @@ class TournamentCtlr:
         r_matches_id_list = TournamentCtlr.create_first_r_matches_list(
             self, tournament_id, round_id)
         # start 1st round and load start_date_and_time into DB
-        RoundView.display_round_date_time_start(self)
+        RoundView.display_round_date_time_start()
         self.start_date_time = RoundController.start_round(self)
         RoundController.update_start_date_and_time(
             self, tournament_id, self.start_date_time, round_id)
@@ -314,14 +283,14 @@ class TournamentCtlr:
             r_matches_id_list = TournamentCtlr.create_next_round_matches_list(
                 self, tournament_id, round_id)
             # start round
-            RoundView.display_round_date_time_start(self)
+            RoundView.display_round_date_time_start()
             self.start_date_time = RoundController.start_round(self)
             RoundController.update_start_date_and_time(
                 self, tournament_id, self.start_date_time, round_id)
             print(self.start_date_time)
 
         else:
-            TournamentView.display_rounds_list_full(self)
+            TournamentView.display_rounds_list_full()
         return round_id
 
     def create_first_r_matches_list(self, tournament_id, round_id):
@@ -498,7 +467,7 @@ class TournamentCtlr:
 
     def closing_this_round(self, tournament_id, round_id):
         """Close current round by adding round_end_date_time"""
-        RoundView.display_round_date_time_end(self)
+        RoundView.display_round_date_time_end()
         end_date_time = RoundController.close_round(self,)
         # load round_end_date_time into DB
         Round.update_round_end_date_time(self, tournament_id, round_id,
@@ -510,7 +479,7 @@ class TournamentCtlr:
         """close any round"""
         tournament_id = TournamentCtlr.request_tournament_id(self)
         round_id = TournamentCtlr.request_round_id(self, tournament_id)
-        RoundView.display_round_date_time_end(self)
+        RoundView.display_round_date_time_end()
         end_date_time = RoundController.close_round(self)
         # load round_end_date_time into DB
         Round.update_round_end_date_time(self, tournament_id, round_id,
@@ -595,7 +564,7 @@ class TournamentCtlr:
         TournamentView.display_tournaments_list()
         for t in Tournament.all_tournaments_db:
             print(t['t_name'])
-        RoundView.ask_tournament_name(self)
+        RoundView.ask_tournament_name()
         tournament_name = input()
         Thetournmt = Query()
         chosen_tournament = (Tournament.all_tournaments_db.get(
@@ -616,7 +585,7 @@ class TournamentCtlr:
         for rd_id in rounds_id_list:
             round_name = (Round.rounds_db.get(doc_id=rd_id))['r_name']
             print(round_name)
-        RoundView.ask_round_name(self)
+        RoundView.ask_round_name()
         round_name_req = input()
         Theround = Query()
         round_id = (Round.rounds_db.get(Theround.r_name == round_name_req)
@@ -634,7 +603,7 @@ class TournamentCtlr:
         name_pl2 = Player.players_db.get(doc_id=player2_id)['p_name']
         print('Match ' + name_pl1 + " contre " + name_pl2)
         print('1er joueur : ' + name_pl1)
-
+        
         player1_score = float(input('Saisissez son score (0 ou 0.5 ou 1) : '))
         return player1_score
 
@@ -651,6 +620,7 @@ class TournamentCtlr:
         print('2eme joueur : ' + name_pl2)
 
         player2_score = float(input('Saisissez son score (0 ou 0.5 ou 1) : '))
+        TournamentView.separator()
         return player2_score
 
     def update_player_points_qty(self, player1_id, player2_id, player1_score,
@@ -795,22 +765,151 @@ class PlayerController:
         player_gender = input()
         return player_gender
 
+    def display_points_sorted_tournament_players(self, tournament_id):   
+        """display, at a tournament's end its players sorted by points"""
+ 
+        db = TinyDB('db'+str(tournament_id)+'.json')
+        Tournament.tournaments_db = db.table('tournaments_db')
+        Player.players_db = db.table('players_db')
+
+        tournament_requested = (Tournament.tournaments_db.get(
+            doc_id=tournament_id))
+
+        tournament_pl_id_list = []  # tournament players'id list
+        for t in (tournament_requested['t_players_list']):
+            tournament_pl_id_list.append(t)
+
+        tournament_players_list = []
+        for pl_id in tournament_pl_id_list:
+            tournament_pl = Player.players_db.get(doc_id=pl_id)
+            tournament_players_list.append(tournament_pl)  # tourney's players
+            
+        # players sorted by descending points and by rank
+        rank_sorted_p_list = sorted(tournament_players_list,
+                                key=lambda k: k['p_rank'])
+        points_n_rank_sorted_all_players_list = sorted(
+            rank_sorted_p_list, key=lambda k: k['p_total_points'],
+            reverse=True)
+
+        # display players name, first name, points quantity, rank 
+        PlayerView.display_points_n_rank_sorted_tournament_players()
+        pl_qty = (len(points_n_rank_sorted_all_players_list))
+        for pl in range(0, pl_qty):
+            pl_name = points_n_rank_sorted_all_players_list[pl]['p_name']
+            pl_firstname = points_n_rank_sorted_all_players_list[pl]['p_firstname']
+            pl_points = points_n_rank_sorted_all_players_list[pl]['p_total_points']
+            pl_rank = points_n_rank_sorted_all_players_list[pl]['p_rank']
+            
+            print(str(pl_name)+' '+str(pl_firstname)
+                  +', nombre de points : '+str(pl_points)
+                  +', classement : '+str(pl_rank)) 
+        time.sleep(5)
+
+    def update_players_points_in_db_all(self):
+        """for each player, get its total_points in each tournament,
+        sum all these points and update player's total points in db_all"""
+
+        db_all_t = TinyDB('db_all_t.json')
+        Player.all_players_db = db_all_t.table('all_players_db')
+        Tournament.all_tournaments_db = db_all_t.table('all_tournaments_db')
+        length_tournaments_list = len(Tournament.all_tournaments_db )
+        oneplayer_points_list = []
+
+        for pl in Player.all_players_db:
+            pl_name = pl['p_name']
+            pl_firstname = pl['p_firstname']
+            pl_doc_id = pl['p_id']
+            #print(pl_name)
+            
+            # get one player's points in all tournaments
+            for t in range(1, (length_tournaments_list+1)):
+                db = TinyDB('db'+str(t)+'.json')
+                Theplayer = Query()
+                Player.players_db = db.table('players_db')
+
+                one_player = (Player.players_db.get(
+                    (
+                        Theplayer.p_name == pl_name
+                    ) & (
+                        Theplayer.p_firstname == pl_firstname
+                        )
+                    ))
+                if one_player is None:
+                    # print('Joueur '+pl_name+' : aucun match du tournoi '+str(t))
+                    pass
+                else:
+                    one_player_points = one_player['p_total_points']
+                    oneplayer_points_list.append(one_player_points)
+            #print(oneplayer_points_list)
+
+            # sum all tournaments player's points and update in global DB.
+            player_points_in_all_t = sum(oneplayer_points_list)
+            #print(player_points_in_all_t)
+            Player.all_players_db.update({
+                'p_total_points': player_points_in_all_t}, 
+                                         doc_ids=[pl_doc_id])
+            oneplayer_points_list.clear()
+
+    def display_all_players_sorted_by_points(self):
+        db_all_t = TinyDB('db_all_t.json')
+        Player.all_players_db = db_all_t.table('all_players_db')
+        all_tournaments_players_list = []
+
+        for each_player in Player.all_players_db:
+            all_tournaments_players_list.append(each_player)
+        # players sorted by descending points and by rank
+        rank_sorted_p_list = sorted(all_tournaments_players_list,
+                                key=lambda k: k['p_rank'])
+        points_n_rank_sorted_all_players_list = sorted(
+            rank_sorted_p_list, key=lambda k: k['p_total_points'],
+            reverse=True)
+        
+        # display players name, first name, points quantity, rank 
+        PlayerView.display_points_n_rank_sorted_tournament_players()
+        pl_qty = (len(points_n_rank_sorted_all_players_list))
+        for pl in range(0, pl_qty):
+            pl_name = points_n_rank_sorted_all_players_list[pl]['p_name']
+            pl_firstname = points_n_rank_sorted_all_players_list[pl]['p_firstname']
+            pl_points = points_n_rank_sorted_all_players_list[pl]['p_total_points']
+            pl_rank = points_n_rank_sorted_all_players_list[pl]['p_rank']
+            
+            print(str(pl_name)+' '+str(pl_firstname)
+                    +', nombre de points : '+str(pl_points)
+                    +', classement : '+str(pl_rank))
+        time.sleep(5)
+
     def ask_player_ranking(self):
         """ get player_ranking from User through player_view """
         PlayerView.ask_player_ranking()
         player_rank = int(input())
         return player_rank
 
+    def update_global_ranking(self):
+        """Update global ranking with User's information"""
+        PlayerController.display_all_players_sorted_by_points(self)
+        PlayerView.ask_player_to_update_rank()
+        player_id = PlayerController.request_player(self)
+        if player_id is None:
+                pass
+        else:
+            PlayerView.ask_player_ranking()
+            player_rank = int(input())
+            new_player_rank = Player.update_playr_rank(self, player_id, player_rank)
+            return new_player_rank
+
     def update_players_ranking(self):
         """ update player rank with User's information"""
-        player_id = PlayerController.request_player(self)
+        tournament_id = TournamentCtlr.request_tournament_id(self)
+        PlayerController.display_points_sorted_tournament_players(
+            self, tournament_id)
+        PlayerView.ask_player_to_update_rank()
+        player_id = PlayerController.request_tournament_player(self, tournament_id)
         if player_id is None:
             pass
         else:
             PlayerView.ask_player_ranking()
             player_rank = int(input())
-            new_player_rank = Player.update_playr_rank(self, player_id,
-                                                       player_rank)
+            new_player_rank = Player.update_t_player_rank(self, tournament_id, player_id, player_rank)
             return new_player_rank
 
     def request_player(self):
@@ -822,6 +921,29 @@ class PlayerController:
         search_p_first_name = PlayerController.ask_player_first_name(self)
         Theplayer = Query()
         searched_player = Player.all_players_db.get(
+            (
+                Theplayer.p_name == search_p_name
+            ) & (
+                Theplayer.p_firstname == search_p_first_name
+                )
+            )
+        print(searched_player)
+        if searched_player is None:
+            PlayerView.display_absent_player()
+            time.sleep(2)
+            return searched_player
+        else:
+            return searched_player.doc_id
+
+    def request_tournament_player(self, tournament_id):
+        """search a player (by his name & firstname) into db"""
+        db = TinyDB('db'+str(tournament_id)+'.json')
+        Player.players_db = db.table('players_db')
+
+        search_p_name = PlayerController.ask_player_name(self)
+        search_p_first_name = PlayerController.ask_player_first_name(self)
+        Theplayer = Query()
+        searched_player = Player.players_db.get(
             (
                 Theplayer.p_name == search_p_name
             ) & (
@@ -849,7 +971,6 @@ class ReportingController:
     1/ by alphabetical order
     2/ by ranking
     """
-
     def display_all_players_reporting(self):
         db_all_t = TinyDB('db_all_t.json')
         Player.Theplayer = Query()
@@ -859,11 +980,11 @@ class ReportingController:
         for pl in Player.all_players_db:
             all_players_list.append(pl)
 
-        ReportingView.display_all_players_reporting(self)
+        ReportingView.display_all_players_reporting()
         sorting_choice = input()
 
         if sorting_choice == '1':
-            ReportingView.display_all_players_alphabetical_order(self)
+            ReportingView.display_all_players_alphabetical_order()
             """Liste de tous les acteurs triés par ordre alphabétique"""
             pl_list = (len(all_players_list))
             players_name_list = []
@@ -874,36 +995,36 @@ class ReportingController:
             time.sleep(2)
 
             # details :
-            ReportingView.display_all_players_alphabetical_order_details(self)
+            ReportingView.display_all_players_alphabetical_order_details()
             for p in players_name_list:
                 print(Player.all_players_db.search(where('p_name') == p))
             time.sleep(5)
 
         else:
-            ReportingView.display_all_players_by_rank(self)
+            ReportingView.display_all_players_by_rank()
             rank_sorted_all_players_list = sorted(all_players_list,
                                                   key=lambda k: k['p_rank'])
 
             pl_list = (len(rank_sorted_all_players_list))
-            players_name_list = []
-            for j in range(0, pl_list):
-                players_name_list.append(
-                    rank_sorted_all_players_list[j]['p_name'])
-            print(players_name_list)
-            time.sleep(2)
-
-            ReportingView.display_all_players_by_rank_details(self)
-            for j in rank_sorted_all_players_list:
-                print(j)
-            time.sleep(5)
+            pl_id_list = []
+            for pl in rank_sorted_all_players_list:
+                pl_id_list.append(pl['p_id'])
+            
+            for id in pl_id_list:
+                pl_name = (Player.all_players_db.get(doc_id=id))['p_name']
+                pl_firstname = (Player.all_players_db.get(doc_id=id))['p_firstname']
+                pl_rk = (Player.all_players_db.get(doc_id=id))['p_rank']
+                print(pl_name+' '+pl_firstname+'- classement: '+str(pl_rk))      
+        time.sleep(5)
+        ReportingView.separator()
 
     """ List of all players of ONE tournament
     1/ by alphabetical order
     2/ by ranking
     """
     def display_tournament_players(self):
-        ReportingView.one_tournament_players_list(self)
-        ReportingView.display_tournaments_list(self)
+        ReportingView.one_tournament_players_list()
+        ReportingView.display_tournaments_list()
         tournament_id = TournamentCtlr.request_tournament_id(self)
         db = TinyDB('db'+str(tournament_id)+'.json')
         Tournament.tournaments_db = db.table('tournaments_db')
@@ -921,10 +1042,10 @@ class ReportingController:
             tournament_pl = Player.players_db.get(doc_id=pl_id)
             tournament_players_list.append(tournament_pl)
 
-        ReportingView.display_chosen_tournament_players(self)
+        ReportingView.display_chosen_tournament_players()
         sorting_choice = input()
         if sorting_choice == '1':
-            ReportingView.display_all_players_alphabetical_order(self)
+            ReportingView.display_all_players_alphabetical_order()
             players_name_list = []
             for i in range(0, len(tournament_players_list)):
                 players_name_list.append(tournament_players_list[i]['p_name'])
@@ -932,13 +1053,13 @@ class ReportingController:
             print(players_name_list)
             time.sleep(5)
             # details :
-            ReportingView.display_all_players_alphabetical_order_details(self)
+            ReportingView.display_all_players_alphabetical_order_details()
             for p in players_name_list:
                 print(Player.players_db.search(where('p_name') == p))
             time.sleep(5)
 
         else:
-            ReportingView.display_all_players_by_rank(self)
+            ReportingView.display_all_players_by_rank()
             rank_sorted_tournament_players_list = sorted(
                 tournament_players_list, key=lambda k: k['p_rank'])
 
@@ -949,23 +1070,24 @@ class ReportingController:
                     rank_sorted_tournament_players_list[j]['p_name'])
             print(players_name_list)
             time.sleep(5)
-            ReportingView.display_all_players_by_rank_details(self)
+            ReportingView.display_all_players_by_rank_details()
             for j in rank_sorted_tournament_players_list:
                 print(j)
             time.sleep(5)
+        ReportingView.separator()
 
     """ List of all tournaments """
     def display_all_tournaments(self):
         db_all_t = TinyDB('db_all_t.json')
         Tournament.all_tournaments_db = db_all_t.table('all_tournaments_db')
 
-        ReportingView.all_tournaments_list(self)
-        ReportingView.display_tournaments_list(self)
+        ReportingView.all_tournaments_list()
+        ReportingView.display_tournaments_list()
         for t in Tournament.all_tournaments_db:
             print(t['t_name'])
         time.sleep(2)
 
-        ReportingView.display_tournaments_list_details(self)
+        ReportingView.display_tournaments_list_details()
         tournaments_id_list = []
         for tournament in Tournament.all_tournaments_db:
             tournaments_id_list.append(tournament.doc_id)
@@ -976,12 +1098,12 @@ class ReportingController:
             Tournament.tournaments_db = db.table('tournaments_db')
             t_details = Tournament.tournaments_db.get(doc_id=tournament_id)
             print(t_details)
-
         time.sleep(5)
+        ReportingView.separator()
 
     """ List of all rounds of ONE tournament """
     def tournament_all_rounds(self):
-        ReportingView.one_tournament_rounds_list(self)
+        ReportingView.one_tournament_rounds_list()
         tournament_id = TournamentCtlr.request_tournament_id(self)
         db = TinyDB('db'+str(tournament_id)+'.json')
         Tournament.tournaments_db = db.table('tournaments_db')
@@ -990,7 +1112,7 @@ class ReportingController:
         chosen_tournament = (Tournament.tournaments_db.get(
             doc_id=tournament_id))
 
-        ReportingView.chosen_t_rounds_names_list(self)
+        ReportingView.chosen_t_rounds_names_list()
         t_rounds_list = []
         t_round_id_list = (chosen_tournament['t_rounds_list'])
         for rd_id in (t_round_id_list):
@@ -999,15 +1121,15 @@ class ReportingController:
             print(t_round['r_name'])
         time.sleep(2)
 
-        ReportingView.chosen_t_rounds_details(self)
+        ReportingView.chosen_t_rounds_details()
         for t in (t_rounds_list):
             print(t)
         time.sleep(5)
-
+        ReportingView.separator()
+        
     """ List of all matches of ONE tournament """
-
     def tournament_all_matches(self):
-        ReportingView.one_tournament_matches_list(self)
+        ReportingView.one_tournament_matches_list()
         tournament_id = TournamentCtlr.request_tournament_id(self)
         db = TinyDB('db'+str(tournament_id)+'.json')
         Tournament.tournaments_db = db.table('tournaments_db')
@@ -1031,7 +1153,7 @@ class ReportingController:
                 for m_id in one_round_matches_id:
                     matches_id_list.append(m_id)
 
-            ReportingView.chosen_round_matches_list(self)
+            ReportingView.chosen_round_matches_list()
             matches_list = []
             for m in matches_id_list:
                 a_match = Match.matches_db.get(doc_id=m)
@@ -1054,6 +1176,7 @@ class ReportingController:
                       + ' contre ' + str(name_pl2)
                       + ' score: ' + str(score_pl2))
         time.sleep(5)
+        ReportingView.separator()
 
 
 class Save_and_load_Ctrl:

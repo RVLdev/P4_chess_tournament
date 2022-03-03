@@ -16,7 +16,7 @@ class InterfaceView:
         print('2 TOURNOI : afficher un tournoi')
         print('3 JOUEURS : Enregistrer un ou des joueurs dans la base')
         print('4 JOUEURS : Ajouter un joueur à un tournoi')
-        print("5 JOUEURS : Mettre à jour le classement d'un joueur")
+        print("5 CLASSEMENT")
         print('6 TOUR : Lancer un tour')
         print('7 TOUR : Clôturer un tour')
         print('8 TOUR : Renseigner des scores')
@@ -54,8 +54,16 @@ class InterfaceView:
         print('Voulez_vous mettre à jour les scores (O/N) ?')
 
     @classmethod
-    def request_rank_update(cls):
-        print('Voulez_vous mettre à jour le classement des joueurs ? O/N')
+    def request_ranking_update(cls):
+        print('Mise à jour du classement : ')
+        print('1 Classement des joueurs dans un tournoi')
+        print('2 Classement général des joueurs')
+        print('3 Revenir au menu')
+        print('Saisissez 1, 2 ou 3 selon votre choix : ')
+
+    @classmethod
+    def request_global_rank_update(cls):
+        print('Mettre à jour le classement général des joueurs (O/N)? ')
 
     @classmethod
     def menu_reporting(cls):
@@ -88,6 +96,10 @@ class InterfaceView:
     @classmethod
     def exit_programm(cls):
         print('Voulez_vous quitter le programme (O/N) ?')
+
+    @classmethod
+    def separator(cls):
+        print('------------------------------------\n')
 
 
 class TournamentView:
@@ -168,6 +180,10 @@ class TournamentView:
         print('ATTENTION scores déjà renseignés')
         print('Voulez-vous écraser les valeurs (O/N) ? ')
 
+    @classmethod
+    def separator(cls):
+        print('------------------------------------\n')
+
 
 class RoundView:
     def __init__(self):
@@ -177,17 +193,25 @@ class RoundView:
     def display_players_list_full(cls):
         print('Liste des joueurs du tournoi complète')
 
+    @classmethod
     def display_round_date_time_start(cls):
         print('Date et heure de début du tour (round) : ')
 
+    @classmethod
     def display_round_date_time_end(cls):
         print('Date et heure de fin du tour (round)')
 
+    @classmethod
     def ask_tournament_name(cls):
         print('Saisissez le nom du tournoi concerné :')
 
+    @classmethod
     def ask_round_name(cls):
         print('Saisissez le nom du tour concerné :')
+
+    @classmethod
+    def separator(cls):
+        print('------------------------------------\n')
 
 
 class MatchView:
@@ -241,69 +265,102 @@ class PlayerView:
     def add_player(cls):
         print('Ajouter ce joueur au tournoi ?')
 
+    @classmethod
+    def display_points_n_rank_sorted_tournament_players(cls):
+        print('Liste des joueurs du tournoi triés par nombre de points')
+
+    @classmethod
+    def ask_player_to_update_rank(cls):
+        print('Le classement de quel joueur voulez-vous mettre à jour ?')
+
+    @classmethod
+    def separator(cls):
+        print('------------------------------------\n')
+
 
 class ReportingView:
     def __init__(self):
         pass
 
+    @classmethod
     def one_tournament_players_list(cls):
         print("\nReporting : Liste de tous joueurs d'un tournoi")
 
+    @classmethod
     def all_tournaments_list(cls):
         print('\nReporting : Liste de tous les tournois')
 
+    @classmethod
     def one_tournament_rounds_list(cls):
         print("\nReporting : Liste des tours ('rounds') d'un tournoi")
 
+    @classmethod
     def one_tournament_matches_list(cls):
         print("\nReporting : Liste des matches d'un tournoi")
 
+    @classmethod
     def display_all_players_reporting(cls):
         print('\nReporting : liste de tous les joueurs')
         print('1 triés par ordre alphabétique')
         print('2 triés par classement')
         print('Saisissez 1 ou 2 selon votre choix : ')
 
+    @classmethod
     def display_all_players_alphabetical_order(cls):
         print('\nListe de tous les joueurs triés par ordre alphabétique')
 
+    @classmethod
     def display_all_players_alphabetical_order_details(cls):
         print('En detail : \n -----------')
 
+    @classmethod
     def display_all_players_by_rank(cls):
         print('\nListe de tous les joueurs triés par classement')
 
+    @classmethod
     def display_all_players_by_rank_details(cls):
         print('En detail : \n -----------')
 
+    @classmethod
     def display_tournaments_list(cls):
         print("\nListe des tournois : ")
 
+    @classmethod
     def display_chosen_tournament_players(cls):
         print('\nListe de tous les joueurs du tournoi choisi :')
         print('1 par ordre alphabétique')
         print('2 par classement')
         print('Saisissez 1 ou 2 selon votre choix : ')
 
+    @classmethod
     def display_tournaments_list_details(cls):
         print('En detail : \n -----------')
 
+    @classmethod
     def chosen_t_rounds_names_list(cls):
         print('\nNom des tours du tournoi choisi :')
 
+    @classmethod
     def chosen_t_rounds_details(cls):
         print('En detail : \n -----------')
 
+    @classmethod
     def chosen_round_matches_list(cls):
         print('\nListe des matchs du tour choisi')
+
+    @classmethod       
+    def separator(cls):
+        print('------------------------------------\n')
 
 
 class Save_and_load_View:
     def __init__(self):
         pass
 
+    @classmethod
     def ask_programm_saving(cls):
         print("Voulez-vous faire une sauvegarde ? (O/N)")
 
+    @classmethod
     def ask_backup_loading(cls):
         print("Voulez-vous charger une sauvegarde du programme ? (O/N)")

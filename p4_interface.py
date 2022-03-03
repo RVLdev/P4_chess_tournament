@@ -39,7 +39,7 @@ class InterfaceController:
             if start_menu_choice == '1':  # 1 : Create a tournament
                 tourney_id = TournamentCtlr.create_new_tournament(
                     self, tournament_id=0, tournament_rounds_qty=4)
-                Save_and_load_View.ask_programm_saving(self)
+                Save_and_load_View.ask_programm_saving()
                 prog_saving = input()
                 if prog_saving == 'O':
                     Save_and_load_Ctrl.save_program(self)
@@ -51,7 +51,7 @@ class InterfaceController:
                     tournament_id = tourney_id
                     TournamentCtlr.create_tournament_players_id_list(
                         self, tournament_id)
-                    Save_and_load_View.ask_programm_saving(self)
+                    Save_and_load_View.ask_programm_saving()
                     prog_saving = input()
                     if prog_saving == 'O':
                         Save_and_load_Ctrl.save_program(self)
@@ -62,7 +62,7 @@ class InterfaceController:
                     if first_r_launch == 'O':
                         round_id = TournamentCtlr.create_first_round(
                             self, tournament_id)
-                        Save_and_load_View.ask_programm_saving(self)
+                        Save_and_load_View.ask_programm_saving()
                         prog_saving = input()
                         if prog_saving == 'O':
                             Save_and_load_Ctrl.save_program(self)
@@ -73,7 +73,7 @@ class InterfaceController:
                         if closing_r == 'O':
                             TournamentCtlr.closing_this_round(
                                 self,tournament_id, round_id)
-                            Save_and_load_View.ask_programm_saving(self)
+                            Save_and_load_View.ask_programm_saving()
                             prog_saving = input()
                             if prog_saving == 'O':
                                 Save_and_load_Ctrl.save_program(self)
@@ -84,7 +84,7 @@ class InterfaceController:
                             if scores_updating == 'O':
                                 TournamentCtlr.updating_this_r_scores(
                                     self, tournament_id, round_id)
-                                Save_and_load_View.ask_programm_saving(self)
+                                Save_and_load_View.ask_programm_saving()
                                 prog_saving = input()
                                 if prog_saving == 'O':
                                     Save_and_load_Ctrl.save_program(self)
@@ -96,7 +96,7 @@ class InterfaceController:
                                     if launch_rd == 'O':
                                         round_id = TournamentCtlr.create_next_round(
                                             self, tournament_id)
-                                        Save_and_load_View.ask_programm_saving(self)
+                                        Save_and_load_View.ask_programm_saving()
                                         prog_saving = input()
                                         if prog_saving == 'O':
                                             Save_and_load_Ctrl.save_program(
@@ -108,7 +108,7 @@ class InterfaceController:
                                         if closing_r == 'O':
                                             TournamentCtlr.closing_this_round(
                                                 self, tournament_id, round_id)
-                                            Save_and_load_View.ask_programm_saving(self)
+                                            Save_and_load_View.ask_programm_saving()
                                             prog_saving = input()
                                             if prog_saving == 'O':
                                                 Save_and_load_Ctrl.save_program(self)
@@ -119,7 +119,7 @@ class InterfaceController:
                                             if scores_updating == 'O':
                                                 TournamentCtlr.updating_this_r_scores(
                                                     self, tournament_id, round_id)
-                                                Save_and_load_View.ask_programm_saving(self)
+                                                Save_and_load_View.ask_programm_saving()
                                                 prog_saving = input()
                                                 if prog_saving == 'O':
                                                     Save_and_load_Ctrl.save_program(self)
@@ -133,21 +133,21 @@ class InterfaceController:
                                             pass
                                     else:
                                         pass
-                                InterfaceView.request_rank_update()
-                                updating_rank = input()
-                                if updating_rank == 'O':
-                                    PlayerController.update_players_ranking(
-                                        self)
-                                    Save_and_load_View.ask_programm_saving(
-                                        self)
-                                    prog_saving = input()
-                                    if prog_saving == 'O':
-                                        Save_and_load_Ctrl.save_program(self)
-                                    else:
-                                        pass
+                                InterfaceView.request_ranking_update()
+                                rk_update_choice = input()
+                                if rk_update_choice == '1':
+                                    PlayerController.update_players_ranking(self)
+                                    time.sleep(2)
+                                elif rk_update_choice == '1':
+                                    PlayerController.update_global_ranking(self)
+                                else:
+                                    self.t_launch()
+                                Save_and_load_View.ask_programm_saving()
+                                prog_saving = input()
+                                if prog_saving == 'O':
+                                    Save_and_load_Ctrl.save_program(self)
                                 else:
                                     pass
-
                             else:
                                 pass
                         else:
@@ -162,7 +162,7 @@ class InterfaceController:
             elif start_menu_choice == '2':  # 2 Display a tournament
                 TournamentCtlr.read_a_tournament(self)
                 time.sleep(2)
-                Save_and_load_View.ask_programm_saving(self)
+                Save_and_load_View.ask_programm_saving()
                 prog_saving = input()
                 if prog_saving == 'O':
                     Save_and_load_Ctrl.save_program(self)
@@ -172,7 +172,7 @@ class InterfaceController:
             elif start_menu_choice == '3':  # 3 Create new player
                 PlayerController.create_new_player_in_db_all(self, player_id=0)
                 time.sleep(2)
-                Save_and_load_View.ask_programm_saving(self)
+                Save_and_load_View.ask_programm_saving()
                 prog_saving = input()
                 if prog_saving == 'O':
                     Save_and_load_Ctrl.save_program(self)
@@ -184,7 +184,7 @@ class InterfaceController:
                 add_one_players = input()
                 if add_one_players == 'O':
                     TournamentCtlr.add_a_player_to_a_tournament(self)
-                    Save_and_load_View.ask_programm_saving(self)
+                    Save_and_load_View.ask_programm_saving()
                     prog_saving = input()
                     if prog_saving == 'O':
                         Save_and_load_Ctrl.save_program(self)
@@ -194,9 +194,14 @@ class InterfaceController:
                     pass
 
             elif start_menu_choice == '5':  # 5 : updating a player rank
-                PlayerController.update_players_ranking(self)
-                time.sleep(2)
-                Save_and_load_View.ask_programm_saving(self)
+                InterfaceView.request_ranking_update()
+                rk_update_choice = input()
+                if rk_update_choice == '1':
+                    PlayerController.update_players_ranking(self)
+                    time.sleep(2)
+                else:
+                    PlayerController.update_global_ranking(self)
+                Save_and_load_View.ask_programm_saving()
                 prog_saving = input()
                 if prog_saving == 'O':
                     Save_and_load_Ctrl.save_program(self)
@@ -205,7 +210,7 @@ class InterfaceController:
 
             elif start_menu_choice == '6':  # 6 : Launching a round
                 TournamentCtlr.create_a_tournament_round(self)
-                Save_and_load_View.ask_programm_saving(self)
+                Save_and_load_View.ask_programm_saving()
                 prog_saving = input()
                 if prog_saving == 'O':
                     Save_and_load_Ctrl.save_program(self)
@@ -215,7 +220,7 @@ class InterfaceController:
             elif start_menu_choice == '7':  # 7 : Ending a tournament
                 TournamentCtlr.closing_a_round(self)
                 time.sleep(2)
-                Save_and_load_View.ask_programm_saving(self)
+                Save_and_load_View.ask_programm_saving()
                 prog_saving = input()
                 if prog_saving == 'O':
                     Save_and_load_Ctrl.save_program(self)
@@ -225,7 +230,7 @@ class InterfaceController:
             elif start_menu_choice == '8':  # 8 : Enter scores
                 TournamentCtlr.update_matches_scores_players_points(self)
                 time.sleep(2)
-                Save_and_load_View.ask_programm_saving(self)
+                Save_and_load_View.ask_programm_saving()
                 prog_saving = input()
                 if prog_saving == 'O':
                     Save_and_load_Ctrl.save_program(self)
@@ -268,6 +273,7 @@ class InterfaceController:
                 InterfaceView.exit_programm()
                 user_answer = input()
                 if user_answer == 'O':
+                    PlayerController.update_players_points_in_db_all(self)
                     Save_and_load_Ctrl.save_program(self)
                     print('Au revoir')
                     sys.exit()
@@ -277,6 +283,7 @@ class InterfaceController:
                 InterfaceView.exit_programm()
                 user_answer = input()
                 if user_answer == 'O':
+                    PlayerController.update_players_points_in_db_all(self)
                     Save_and_load_Ctrl.save_program(self)
                     print('Au revoir')
                     sys.exit()
