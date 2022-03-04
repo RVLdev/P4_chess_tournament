@@ -1,18 +1,31 @@
 import sys
-from p4_controllers import TournamentCtlr
-from p4_controllers import PlayerController
-from p4_controllers import ReportingController
-from p4_controllers import Save_and_load_Ctrl
-from p4_views import InterfaceView
-from p4_views import Save_and_load_View
+
+from controllers.tournamentcontroller import TournamentCtrlr
+from controllers.roundcontroller import RoundCtrlr
+from controllers.matchcontroller import MatchCtrlr
+from controllers.playercontroller import PlayerCtrlr
+from controllers.reportingcontroller import ReportingCtrlr
+from controllers.save_n_loadcontroller import Save_and_load_Ctrlr
+from models.save_n_loadmodel import Save_and_load
+from models.playermodel import Player
+from models.matchmodel import Match
+from models.roundmodel import Round
+from models.tournamentmodel import Tournament
+from views.interfaceviews import InterfaceView
+from views.tournamentviews import TournamentViews
+from views.roundviews import RoundViews
+from views.matchviews import MatchViews
+from views.playerviews import PlayerViews
+from views.reportingviews import ReportingViews
+from views.save_n_loadviews import Save_and_load_Views
 
 
 def main():
-    launch = InterfaceController()
+    launch = InterfaceMenu()
     launch.t_launch()
 
 
-class InterfaceController:
+class InterfaceMenu:
     def __init__(self):
         self.menu_list = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
                           '11']
@@ -37,39 +50,39 @@ class InterfaceController:
             if start_menu_choice == '1':  # 1 : Create a tournament
                 self.create_tournament()
             elif start_menu_choice == '2':  # 2 Display a tournament
-                TournamentCtlr.read_a_tournament(self)
+                TournamentCtrlr.read_a_tournament(self)
             elif start_menu_choice == '3':  # 3 Create new player
-                PlayerController.create_new_player_in_db_all(self,
+                PlayerCtrlr.create_new_player_in_db_all(self,
                                                              player_id=0)
                 self.suggest_saving()
             elif start_menu_choice == '4':  # 4 : add a tournament 1 player
                 InterfaceView.display_add_one_player()
-                TournamentCtlr.add_a_player_to_a_tournament(self)
+                TournamentCtrlr.add_a_player_to_a_tournament(self)
                 self.suggest_saving()
             elif start_menu_choice == '5':  # 5 : updating a player rank
                 self.update_ranking()
             elif start_menu_choice == '6':  # 6 : Launching a round
-                TournamentCtlr.create_a_tournament_round(self)
+                TournamentCtrlr.create_a_tournament_round(self)
                 self.suggest_saving()
             elif start_menu_choice == '7':  # 7 : Ending a tournament
-                TournamentCtlr.closing_a_round(self)
+                TournamentCtrlr.closing_a_round(self)
                 self.suggest_saving()
             elif start_menu_choice == '8':  # 8 : Enter scores
-                TournamentCtlr.update_matches_scores_players_points(self)
+                TournamentCtrlr.update_matches_scores_players_points(self)
                 self.suggest_saving()
             elif start_menu_choice == '9':  # 9 Reporting
                 InterfaceView.menu_reporting()
                 reporting_choice = input()
                 if reporting_choice == '1':  # 1 All players
-                    ReportingController.display_all_players_reporting(self)
+                    ReportingCtrlr.display_all_players_reporting(self)
                 elif reporting_choice == '2':  # 2 One tournament's players
-                    ReportingController.display_tournament_players(self)
+                    ReportingCtrlr.display_tournament_players(self)
                 elif reporting_choice == '3':  # 3 All tournaments
-                    ReportingController.display_all_tournaments(self)
+                    ReportingCtrlr.display_all_tournaments(self)
                 elif reporting_choice == '4':  # 4 One tournament's rounds
-                    ReportingController.tournament_all_rounds(self)
+                    ReportingCtrlr.tournament_all_rounds(self)
                 elif reporting_choice == '5':  # 5 One tournament's matches
-                    ReportingController.tournament_all_matches(self)
+                    ReportingCtrlr.tournament_all_matches(self)
                 else:
                     self.exit_on_unavailable_choice()
             elif start_menu_choice == '10':  # 10 Save - Load backup
@@ -77,10 +90,10 @@ class InterfaceController:
                 save_or_load_choice = input(
                     'Entrez le numero correspondant : ')
                 if save_or_load_choice == '1':
-                    Save_and_load_Ctrl.save_program(self)
+                    Save_and_load_Ctrlr.save_program(self)
                     InterfaceView.program_saved()
                 elif save_or_load_choice == '2':
-                    Save_and_load_Ctrl.load_progam(self)
+                    Save_and_load_Ctrlr.load_progam(self)
                     InterfaceView.backup_loaded()
                 else:
                     self.exit_on_unavailable_choice()
@@ -88,8 +101,8 @@ class InterfaceController:
                 InterfaceView.exit_programm()
                 user_answer = input()
                 if user_answer == 'O':
-                    PlayerController.update_players_points_in_db_all(self)
-                    Save_and_load_Ctrl.save_program(self)
+                    PlayerCtrlr.update_players_points_in_db_all(self)
+                    Save_and_load_Ctrlr.save_program(self)
                     InterfaceView.display_goodbye()
                     sys.exit()
                 else:
@@ -99,8 +112,8 @@ class InterfaceController:
                 InterfaceView.exit_programm()
                 user_answer = input()
                 if user_answer == 'O':
-                    PlayerController.update_players_points_in_db_all(self)
-                    Save_and_load_Ctrl.save_program(self)
+                    PlayerCtrlr.update_players_points_in_db_all(self)
+                    Save_and_load_Ctrlr.save_program(self)
                     InterfaceView.display_goodbye()
                     sys.exit()
                 else:
@@ -108,7 +121,7 @@ class InterfaceController:
         return self.t_launch()
 
     def create_tournament(self):
-        tourney_id = TournamentCtlr.create_new_tournament(
+        tourney_id = TournamentCtrlr.create_new_tournament(
                     self, tournament_id=0, tournament_rounds_qty=4)
         self.suggest_saving()
         self.adding_t_players(tourney_id)
@@ -122,7 +135,7 @@ class InterfaceController:
         adding_players = input()
         if adding_players == 'O':
             tournament_id = tourney_id
-            TournamentCtlr.create_tournament_players_id_list(self,
+            TournamentCtrlr.create_tournament_players_id_list(self,
                                                              tournament_id)
             self.suggest_saving()
             self.launch_first_round(tournament_id)
@@ -133,7 +146,7 @@ class InterfaceController:
         InterfaceView.ask_for_first_round_launch()
         first_r_launch = input()
         if first_r_launch == 'O':
-            round_id = TournamentCtlr.create_first_round(self, tournament_id)
+            round_id = TournamentCtrlr.create_first_round(self, tournament_id)
             self.suggest_saving()
             self.close_this_round(tournament_id, round_id)
         else:
@@ -143,7 +156,7 @@ class InterfaceController:
         InterfaceView.this_round_closing()
         closing_r = input()
         if closing_r == 'O':
-            TournamentCtlr.closing_this_round(self, tournament_id, round_id)
+            TournamentCtrlr.closing_this_round(self, tournament_id, round_id)
             self.suggest_saving()
             self.update_this_rd_scores(tournament_id, round_id)
         else:
@@ -153,7 +166,7 @@ class InterfaceController:
         InterfaceView.update_scores()
         scores_updating = input()
         if scores_updating == 'O':
-            TournamentCtlr.updating_this_r_scores(self, tournament_id,
+            TournamentCtrlr.updating_this_r_scores(self, tournament_id,
                                                   round_id)
             self.suggest_saving()
             return tournament_id
@@ -164,7 +177,7 @@ class InterfaceController:
         InterfaceView.launch_round()
         launch_rd = input()
         if launch_rd == 'O':
-            round_id = TournamentCtlr.create_next_round(self, tournament_id)
+            round_id = TournamentCtrlr.create_next_round(self, tournament_id)
             self.suggest_saving()
             self.close_this_round(tournament_id, round_id)
         else:
@@ -174,7 +187,7 @@ class InterfaceController:
         InterfaceView.this_round_closing()
         closing_r = input()
         if closing_r == 'O':
-            TournamentCtlr.closing_this_round(self, tournament_id, round_id)
+            TournamentCtrlr.closing_this_round(self, tournament_id, round_id)
             self.suggest_saving()
             self.update_this_rd_scores(tournament_id, round_id)
         else:
@@ -185,25 +198,25 @@ class InterfaceController:
         InterfaceView.request_ranking_update()
         rk_update_choice = input()
         if rk_update_choice == '1':
-            PlayerController.update_players_ranking(self)
+            TournamentCtrlr.update_players_ranking(self)
         elif rk_update_choice == '2':
-            PlayerController.update_global_ranking(self)
+            PlayerCtrlr.update_global_ranking(self)
         else:
             self.t_launch()
         self.suggest_saving()
         return self.t_launch()
 
     def suggest_saving(self):
-        Save_and_load_View.ask_programm_saving()
+        Save_and_load_Views.ask_programm_saving()
         prog_saving = input()
         if prog_saving == 'O':
-            Save_and_load_Ctrl.save_program(self)
+            Save_and_load_Ctrlr.save_program(self)
         else:
             pass
 
     def exit_on_unavailable_choice(self):
         InterfaceView.end_round_before_start_new_one()
         self.t_launch()
-
-
+        
+    
 main()
