@@ -1,8 +1,8 @@
 from tinydb import TinyDB
-from Models_p4.playermodel import Player
-from Models_p4.matchmodel import Match
-from Models_p4.roundmodel import Round
-from Models_p4.tournamentmodel import Tournament
+from models.playermodel import Player
+from models.matchmodel import Match
+from models.roundmodel import Round
+from models.tournamentmodel import Tournament
 
 
 class Save_and_load:
@@ -10,9 +10,6 @@ class Save_and_load:
         # self.db = TinyDB('db.json')
         self.db_backup = TinyDB('db_backup.json')
         self.db_backup.drop_table('_default')
-
-    def dis_bonjour_save_n_load_model(self):  #TEST INITIAL - A SUPPRIMER*****************************
-        print ('Bonjour de la classe Save_and_load - fichier save_n_loadmodel')
 
     def save_in_db_backup(self):
         """Create a backup of players, matches, rounds and tournaments"""
@@ -23,14 +20,14 @@ class Save_and_load:
             tournaments_id_list.append(t['t_id'])
 
         for tournament_id in tournaments_id_list:
-            db = TinyDB('db'+str(tournament_id)+'.json')
+            db = TinyDB('db' + str(tournament_id) + '.json')
 
             Tournament.tournaments_db = db.table('tournaments_db')
             Round.rounds_db = db.table('rounds_db')
             Match.matches_db = db.table('matches_db')
             Player.players_db = db.table('players_db')
 
-            self.db_backup = TinyDB('db_backup'+str(tournament_id)+'.json')
+            self.db_backup = TinyDB('db_backup' + str(tournament_id) + '.json')
             Player.p_db = self.db_backup.table('players_db')
             Match.m_db = self.db_backup.table('matches_db')
             Round.r_db = self.db_backup.table('rounds_db')
@@ -60,14 +57,14 @@ class Save_and_load:
             tournaments_id_list.append(t['t_id'])
 
         for tournament_id in tournaments_id_list:
-            db = TinyDB('db'+str(tournament_id)+'.json')
+            db = TinyDB('db' + str(tournament_id) + '.json')
 
             Tournament.tournaments_db = db.table('tournaments_db')
             Round.rounds_db = db.table('rounds_db')
             Match.matches_db = db.table('matches_db')
             Player.players_db = db.table('players_db')
 
-            self.db_backup = TinyDB('db_backup'+str(tournament_id)+'.json')
+            self.db_backup = TinyDB('db_backup' + str(tournament_id) + '.json')
             Player.p_db = self.db_backup.table('players_db')
             Match.m_db = self.db_backup.table('matches_db')
             Round.r_db = self.db_backup.table('rounds_db')

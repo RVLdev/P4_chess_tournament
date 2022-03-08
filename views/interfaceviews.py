@@ -27,7 +27,7 @@ class InterfaceView:
 
     @classmethod
     def ask_for_players_inclusion(cls):
-        print("Voulez_vous ajouter 8 joueurs à ce tournoi (O/N) ? ")
+        print("Voulez_vous ajouter 8 joueurs à ce tournoi (OUI/NON) ? ")
 
     @classmethod
     def display_add_one_player(cls):
@@ -35,11 +35,11 @@ class InterfaceView:
 
     @classmethod
     def ask_for_first_round_launch(cls):
-        print('Voulez_vous lancer le 1er tour ?')
+        print('Voulez_vous lancer le 1er tour (OUI/NON)?')
 
     @classmethod
     def launch_round(cls):
-        print('Voulez_vous lancer un tour (O/N)? ')
+        print('Voulez_vous lancer un tour (OUI/NON)? ')
 
     @classmethod
     def display_t_rounds_list_full(cls):
@@ -47,7 +47,7 @@ class InterfaceView:
 
     @classmethod
     def this_round_closing(cls):
-        print('Marquer ce tour comme étant terminé (O/N) ?')
+        print('Marquer ce tour comme étant terminé (OUI/NON) ?')
 
     @classmethod
     def end_round_before_start_new_one(cls):
@@ -56,7 +56,7 @@ class InterfaceView:
 
     @classmethod
     def update_scores(cls):
-        print('Voulez_vous mettre à jour les scores (O/N) ?')
+        print('Voulez_vous mettre à jour les scores (OUI/NON) ?')
 
     @classmethod
     def request_ranking_update(cls):
@@ -68,7 +68,7 @@ class InterfaceView:
 
     @classmethod
     def request_global_rank_update(cls):
-        print('Mettre à jour le classement général des joueurs (O/N)? ')
+        print('Mettre à jour le classement général des joueurs (OUI/NON)? ')
 
     @classmethod
     def menu_reporting(cls):
@@ -100,7 +100,7 @@ class InterfaceView:
 
     @classmethod
     def exit_programm(cls):
-        print('Voulez_vous quitter le programme (O/N) ?')
+        print('Voulez_vous quitter le programme (OUI/NON) ?')
 
     @classmethod
     def display_goodbye(cls):

@@ -1,10 +1,6 @@
 class RoundViews:
     def __init__(self):
-         pass
-
-    def dis_bonjour_r_views(self):  # TEST INITIAL - A SUPPRIMER
-        print ('Bonjour de la classe RoundViews - fichier roundviews')
-
+        pass
 
     @classmethod
     def display_players_list_full(cls):

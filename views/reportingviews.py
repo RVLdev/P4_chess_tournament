@@ -1,9 +1,6 @@
 class ReportingViews:
     def __init__(self):
-         pass
-
-    def dis_bonjour_report_views(self):  # TEST INITIAL - A SUPPRIMER
-        print ('Bonjour de la classe ReportingViews - fichier reportingviews')
+        pass
 
     @classmethod
     def one_tournament_players_list(cls):
@@ -71,6 +68,10 @@ class ReportingViews:
     def chosen_round_matches_list(cls):
         print('\nListe des matchs du tour choisi')
 
-    @classmethod       
+    @classmethod
+    def choice_unavailable(cls):
+        print('*** Désolé, choix non disponible\n')
+
+    @classmethod
     def separator(cls):
         print('------------------------------------\n')

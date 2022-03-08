@@ -1,9 +1,6 @@
 class PlayerViews:
     def __init__(self):
-         pass
-
-    def dis_bonjour_p_views(self):  # TEST INITIAL - A SUPPRIMER
-        print ('Bonjour de la classe PlayerViews - fichier playerviews')
+        pass
 
     @classmethod
     def ask_player_name(cls):
@@ -32,6 +29,10 @@ class PlayerViews:
     @classmethod
     def display_absent_player(cls):
         print('Joueur absent de la base de données.')
+
+    @classmethod
+    def display_please_re_enter(cls):
+        print("Pour l'ajouter, merci de saisir à nouveau : ")
 
     @classmethod
     def ask_choice_menu_add_t_player(cls):

@@ -1,10 +1,7 @@
 
 class TournamentViews:
     def __init__(self):
-         pass
-
-    def dis_bonjour_t_views(self):  #TEST INITIAL - A SUPPRIMER
-        print ('Bonjour de la classe TournamentViews - fichier tournamentviews')
+        pass
 
     @classmethod
     def ask_tournament_name(cls):
@@ -16,7 +13,7 @@ class TournamentViews:
 
     @classmethod
     def ask_tournament_date(cls):
-        print('Entrez la date du tournoi au format JJ/MM/AAAA :')
+        print('Entrez la date du tournoi :')
 
     @classmethod
     def ask_tournament_description(cls):
@@ -37,7 +34,7 @@ class TournamentViews:
 
     @classmethod
     def ask_for_player_inclusion(cls):
-        print("Voulez_vous ajouter des joueurs à ce tournoi (O/N) ? ")
+        print("Voulez_vous ajouter des joueurs à ce tournoi (OUI/NON) ? ")
 
     @classmethod
     def display_t_rounds_list(cls):
@@ -76,9 +73,17 @@ class TournamentViews:
         print('Patientez ...')
 
     @classmethod
+    def display_round_already_closed(cls):
+        print('Tour déjà terminé')
+
+    @classmethod
+    def display_round_not_closed(cls):
+        print('Tour non terminé !')
+
+    @classmethod
     def ask_overwrite_scores(cls):
         print('ATTENTION scores déjà renseignés')
-        print('Voulez-vous écraser les valeurs (O/N) ? ')
+        print('Voulez-vous écraser les valeurs (OUI/NON) ? ')
 
     @classmethod
     def choice_unavailable(cls):
@@ -87,5 +92,3 @@ class TournamentViews:
     @classmethod
     def separator(cls):
         print('------------------------------------\n')
-
-

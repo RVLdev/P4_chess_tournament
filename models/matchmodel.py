@@ -1,4 +1,4 @@
-from tinydb import TinyDB, where, Query
+from tinydb import TinyDB, Query
 
 
 class Match:
@@ -15,13 +15,9 @@ class Match:
         self.db_backup = TinyDB('db_backup.json')
         Match.m_db = self.db_backup.table('matches_db')
 
-    def dis_bonjour_m_model(self):  #TEST INITIAL - A SUPPRIMER*****************************
-        print ('Bonjour de la classe Match - fichier matchmodel')
-
-
     def create_match(self, tournament_id):
         """ create a match (and save it in tournament DB) """
-        db = TinyDB('db'+str(tournament_id)+'.json')
+        db = TinyDB('db' + str(tournament_id) + '.json')
         Match.matches_db = db.table('matches_db')
         Match.matches_db.insert(
             {
@@ -35,7 +31,7 @@ class Match:
 
     def update_match_id(self, tournament_id):
         """ update match_id to become = doc_id """
-        db = TinyDB('db'+str(tournament_id)+'.json')
+        db = TinyDB('db' + str(tournament_id) + '.json')
         Thematch = Query()
         Match.matches_db = db.table('matches_db')
         new_match = Match.matches_db.get(Thematch.m_id == 0)
@@ -46,7 +42,7 @@ class Match:
     def update_players_scores(self, tournament_id, match_id,
                               player1_score, player2_score):
         """ update players scores and save them in tournament DB"""
-        db = TinyDB('db'+str(tournament_id)+'.json')
+        db = TinyDB('db' + str(tournament_id) + '.json')
         Match.matches_db = db.table('matches_db')
         Match.matches_db.update({
             'score_player1': player1_score}, doc_ids=[match_id])

@@ -3,10 +3,7 @@ from models.save_n_loadmodel import Save_and_load
 
 class Save_and_load_Ctrlr:
     def __init__(self):
-         pass
-
-    def dis_bonjour_save_n_load_ctrl(self):  #TEST INITIAL - A SUPPRIMER
-        print ('Bonjour de la classe Save_and_load_Ctrlr - fichier save_n_loadcontroller')
+        pass
 
     def save_program(self):
         # save all data of the whole program

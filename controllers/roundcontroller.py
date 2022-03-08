@@ -5,10 +5,7 @@ from models.tournamentmodel import Tournament
 
 class RoundCtrlr:
     def __init__(self, r_matches_id_list):
-        self.r_matches_id_list = r_matches_id_list 
-
-    def dis_bonjour_r_ctrl(self):  #TEST INITIAL - A SUPPRIMER
-        print ('Bonjour de la classe RoundCtrlr - fichier roundcontroller')
+        self.r_matches_id_list = r_matches_id_list
 
     def create_new_round(self, tournament_id, r_matches_id_list, round_id=0,
                          end_date_time=0, start_date_time=0):
@@ -26,8 +23,8 @@ class RoundCtrlr:
     def give_round_name(self, tournament_id):
         """ get or ask round name"""
         this_tourney = Tournament.tournaments_db.get(doc_id=tournament_id)
-        round_nbr = len(this_tourney['t_rounds_list'])
-        round_name = f'{"Round"}{round_nbr+1}'
+        round_number = len(this_tourney['t_rounds_list'])
+        round_name = f'{"Round"}{round_number+1}'
         return round_name
 
     def start_round(self):
@@ -37,7 +34,7 @@ class RoundCtrlr:
 
     def update_start_date_and_time(self, tournament_id,
                                    start_date_time, round_id):
-        """ update round start date_and_time in DB """
+        """ update round start date_and_time in database """
         Round.update_start_date_time(self, tournament_id,
                                      start_date_time, round_id)
 
@@ -47,5 +44,5 @@ class RoundCtrlr:
         return end_date_time
 
     def update_round_end_date_time(self, round_id, end_date_time):
-        """ update round end date_and_time in DB """
+        """ update round end date_and_time in database """
         Round.update_round_end_date_time(self, round_id, end_date_time)

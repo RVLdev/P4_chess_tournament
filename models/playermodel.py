@@ -1,4 +1,4 @@
-from tinydb import TinyDB, where, Query
+from tinydb import TinyDB, Query
 
 
 class Player:
@@ -36,9 +36,6 @@ class Player:
             }
         )
 
-    def dis_bonjour_p_model(self):  #TEST INITIAL - A SUPPRIMER*****************************
-        print ('Bonjour de la classe Player - fichier playermodel')
-
     def update_player_id(self):
         """update player_id to become = doc_id"""
         db_all_t = TinyDB('db_all_t.json')
@@ -58,8 +55,7 @@ class Player:
 
     def update_t_player_rank(self, tournament_id, player_id, player_rank):
         """ update player rank in tournament's DB"""
-        db = TinyDB('db'+str(tournament_id)+'.json')
+        db = TinyDB('db' + str(tournament_id) + '.json')
         Player.players_db = db.table('players_db')
         Player.players_db.update({
             'p_rank': player_rank}, doc_ids=[player_id])
-    
