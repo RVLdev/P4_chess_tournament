@@ -69,6 +69,10 @@ class ReportingViews:
         print('\nListe des matchs du tour choisi')
 
     @classmethod
+    def display_no_round_launched_this_tourney(self):
+        print("Aucun tour n'a été lancé pour ce tournoi")
+
+    @classmethod
     def choice_unavailable(cls):
         print('*** Désolé, choix non disponible\n')
 

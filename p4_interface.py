@@ -45,7 +45,7 @@ class InterfaceMenu:
                 self.suggest_saving()
             elif start_menu_choice == '4':
                 InterfaceView.display_add_one_player()
-                TournamentCtrlr.add_a_player_to_a_tournament(self)
+                TournamentCtrlr.add_player_to_any_tournament(self)
                 self.suggest_saving()
             elif start_menu_choice == '5':
                 self.update_ranking()
@@ -53,7 +53,7 @@ class InterfaceMenu:
                 TournamentCtrlr.create_any_tournament_round(self)
                 self.suggest_saving()
             elif start_menu_choice == '7':
-                TournamentCtrlr.closing_a_round(self)
+                TournamentCtrlr.closing_a_tournament_round(self)
                 self.suggest_saving()
             elif start_menu_choice == '8':
                 TournamentCtrlr.log_a_round_scores(self)

@@ -9,7 +9,9 @@ class PlayerCtrlr:
         self.player_view = PlayerViews()
 
     def create_new_player(self, tournament_id):
-        """Create one player, store it in databases and return its identifier."""
+        """Create one player, store it in databases and
+        return its identifier.
+        """
         new_player_id = PlayerCtrlr.create_new_player_in_db_all(self,
                                                                 player_id=0)
         new_player = Player.all_players_db.get(doc_id=new_player_id)
@@ -64,7 +66,8 @@ class PlayerCtrlr:
             self, tournament_id)
         # players sorted by descending points and by rank
         players_list = tournament_players_list
-        pts_n_rank_sorted_players_list = PlayerCtrlr.sort_players_by_points(self, players_list)
+        pts_n_rank_sorted_players_list = PlayerCtrlr.sort_players_by_points(
+            self, players_list)
         PlayerCtrlr.display_points_n_rank_sorted_tournament_players(
             self, pts_n_rank_sorted_players_list)
 
@@ -82,7 +85,8 @@ class PlayerCtrlr:
             tournament_players_list.append(tournament_pl)
         return tournament_players_list
 
-    def display_points_n_rank_sorted_tournament_players(self, pts_n_rank_sorted_players_list):
+    def display_points_n_rank_sorted_tournament_players(self,
+                                                        pts_n_rank_sorted_players_list):
         """Display tournament players sorted by points and rank."""
         PlayerViews.display_points_n_rank_sorted_tournament_players()
         pl_qty = (len(pts_n_rank_sorted_players_list))
@@ -113,7 +117,9 @@ class PlayerCtrlr:
             pl_doc_id = pl['p_id']
 
             oneplayer_pts_list = PlayerCtrlr.get_all_tournaments_player_points(
-                self, length_tournaments_list, pl_name, pl_firstname, oneplayer_pts_list)
+                self, length_tournaments_list, pl_name, pl_firstname,
+                oneplayer_pts_list
+            )
 
             player_points_in_all_t = sum(oneplayer_pts_list)
             Player.all_players_db.update({
@@ -123,7 +129,8 @@ class PlayerCtrlr:
             oneplayer_pts_list.clear()
 
     def get_all_tournaments_player_points(self, length_tournaments_list,
-                                          pl_name, pl_firstname, oneplayer_pts_list):
+                                          pl_name, pl_firstname,
+                                          oneplayer_pts_list):
         """Get one player's points in all tournaments"""
         for t in range(1, (length_tournaments_list + 1)):
             db = TinyDB('db' + str(t) + '.json')
@@ -151,12 +158,13 @@ class PlayerCtrlr:
             all_tournaments_players_list.append(each_player)
 
         players_list = all_tournaments_players_list
-        pts_n_rank_sorted_players_list = PlayerCtrlr.sort_players_by_points(self, players_list)
+        pts_n_rank_sorted_players_list = PlayerCtrlr.sort_players_by_points(
+            self, players_list)
         PlayerCtrlr.display_points_n_rank_sorted_tournament_players(
             self, pts_n_rank_sorted_players_list)
 
     def sort_players_by_points(self, players_list):
-        # players sorted by descending points and by rank
+        """Sort players by descending points and by rank."""
         rank_sorted_p_list = sorted(players_list,
                                     key=lambda k: k['p_rank'])
         pts_n_rank_sorted_players_list = sorted(
@@ -177,7 +185,7 @@ class PlayerCtrlr:
         PlayerViews.ask_player_to_update_rank()
         player_id = PlayerCtrlr.request_player(self)
         if player_id is None:
-            pass
+            PlayerViews.display_absent_player()
         else:
             PlayerViews.ask_player_ranking()
             player_rank = int(input())

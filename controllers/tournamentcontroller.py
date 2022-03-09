@@ -17,15 +17,6 @@ class TournamentCtrlr:
         self.tournament_view = TournamentViews()
         self.tournament_id = tournament_id
 
-    def read_a_tournament(self):
-        """Display a tournament."""
-        tournament_id = TournamentCtrlr.request_tournament_id(self)
-        if tournament_id == 0:
-            pass
-        else:
-            Tournament.read_tournament(self, tournament_id)
-            time.sleep(2)
-
     def create_new_tournament(self, tournament_id=0, tournament_rounds_qty=4):
         """Creates a tournament and returns its identifier (id)."""
         tournament = Tournament(
@@ -47,8 +38,17 @@ class TournamentCtrlr:
         TournamentCtrlr.confirm_tournament_rounds_qty(self, tournament_id)
         return tournament_id
 
-    def store_new_tournament_in_database(self,
-                                         new_tournament_id, tournament_id):
+    def read_a_tournament(self):
+        """Display a tournament."""
+        tournament_id = TournamentCtrlr.request_tournament_id(self)
+        if tournament_id == 0:
+            pass
+        else:
+            Tournament.read_tournament(self, tournament_id)
+            time.sleep(2)
+
+    def store_new_tournament_in_database(self, new_tournament_id,
+                                         tournament_id):
         """Store new tournament in its own database (tournaments_db)."""
         db_all_t = TinyDB('db_all_t.json')
         Tournament.all_tournaments_db = db_all_t.table('all_tournaments_db')
@@ -98,13 +98,13 @@ class TournamentCtrlr:
                                                 tournament_id)
         return tournament_rounds_qty
 
-    def create_tournament_players_id_list(self, tournament_id):  # doc_ids
+    def create_tournament_players_id_list(self, tournament_id):
         """Create this tournament's list of 8 players and returns the list
         of the players'ids.
         """
         tournament_players_id_list = []
         while len(tournament_players_id_list) < 8:
-            TournamentCtrlr.add_player_to_tournament(
+            TournamentCtrlr.add_any_player_to_tournament(
                 self, tournament_players_id_list, tournament_id)
             # load tournament_players_id_list into database
             Tournament.update_tournament_players_id_list(
@@ -115,7 +115,7 @@ class TournamentCtrlr:
         RoundViews.display_players_list_full()
         return tournament_players_id_list
 
-    def add_a_player_to_a_tournament(self):
+    def add_player_to_any_tournament(self):
         """Add a player to any tournament and returns the  list of
         tournaments' players' ids (identifiers).
         """
@@ -124,16 +124,16 @@ class TournamentCtrlr:
             pass
         else:
             tournament_players_id_list = []
-            tournament_players_id_list = TournamentCtrlr.get_tournament_players_id_list(
+            tournament_players_id_list = TournamentCtrlr.get_tourney_players_id_list(
                 self, tournament_id)
             if len(tournament_players_id_list) < 8:
-                TournamentCtrlr.add_player_to_tournament(
+                TournamentCtrlr.add_any_player_to_tournament(
                     self, tournament_players_id_list, tournament_id)
                 while len(tournament_players_id_list) < 8:
                     TournamentViews.ask_for_player_inclusion()
                     add_pl = input()
                     if add_pl == 'OUI':
-                        TournamentCtrlr.add_player_to_tournament(
+                        TournamentCtrlr.add_any_player_to_tournament(
                             self, tournament_players_id_list, tournament_id)
                     else:
                         return tournament_players_id_list
@@ -141,15 +141,18 @@ class TournamentCtrlr:
                 TournamentViews.display_t_players_list_is_full()
             return tournament_players_id_list
 
-    def get_tournament_players_id_list(self, tournament_id):
+    def get_tourney_players_id_list(self, tournament_id):
+        """Get tournament's players identifiers list
+        from tournament database.
+        """
         db = TinyDB('db' + str(tournament_id) + '.json')
         Tournament.tournaments_db = db.table('tournaments_db')
         tournament_players_id_list = (Tournament.tournaments_db.get(
             doc_id=tournament_id))['t_players_list']
         return tournament_players_id_list
 
-    def add_player_to_tournament(self, tournament_players_id_list,
-                                 tournament_id):
+    def add_any_player_to_tournament(self, tournament_players_id_list,
+                                     tournament_id):
         """Add a new or database existing player
         to tournament_players_id_list.
         """
@@ -159,13 +162,17 @@ class TournamentCtrlr:
                 self, tournament_players_id_list, tournament_id)
         else:
             TournamentCtrlr.add_tournament_existing_player(
-                self, requested_player_id, tournament_players_id_list, tournament_id)
-        print(str(len(tournament_players_id_list)) + ' joueur(s) ajouté(s) au tournoi')
+                self, requested_player_id, tournament_players_id_list,
+                tournament_id
+            )
+        print(str(len(tournament_players_id_list)
+                  ) + ' joueur(s) ajouté(s) au tournoi')
         TournamentViews.separator()
         return tournament_players_id_list
 
     def add_tournament_a_new_player(self, tournament_players_id_list,
                                     tournament_id):
+        """Add a new player (not in database) to the tournament."""
         PlayerViews.display_please_re_enter()
         new_player_id = PlayerCtrlr.create_new_player(
             self, tournament_id)
@@ -174,7 +181,9 @@ class TournamentCtrlr:
             self, tournament_players_id_list, tournament_id)
 
     def add_tournament_existing_player(self, requested_player_id,
-                                       tournament_players_id_list, tournament_id):
+                                       tournament_players_id_list,
+                                       tournament_id):
+        """Add a player existing in database to the tournament."""
         db = TinyDB('db' + str(tournament_id) + '.json')
         Player.players_db = db.table('players_db')
         db_all_t = TinyDB('db_all_t.json')
@@ -190,9 +199,8 @@ class TournamentCtrlr:
     def update_tournament_rd_id_list(self, tournament_rounds_id_list,
                                      tournament_id):
         """Update tournament_rounds_id_list in this tournament's database."""
-        Tournament.update_tournament_rounds_id_list(self,
-                                                    tournament_rounds_id_list,
-                                                    tournament_id)
+        Tournament.update_tournament_rounds_id_list(
+            self, tournament_rounds_id_list, tournament_id)
 
     def create_any_tournament_round(self):
         """Create any round for a chosen tournament."""
@@ -218,14 +226,12 @@ class TournamentCtrlr:
         """Create the first round of the tournament."""
         r_matches_id_list = []
         Tournament.tournament_rounds_id_list = []
-        new_round = RoundCtrlr.create_new_round(
-            self,
-            tournament_id,
-            r_matches_id_list,
-            round_id=0,
-            end_date_time=0,
-            start_date_time=0
-        )
+        new_round = RoundCtrlr.create_new_round(self,
+                                                tournament_id,
+                                                r_matches_id_list,
+                                                round_id=0,
+                                                end_date_time=0,
+                                                start_date_time=0)
         print(new_round.round_name + ' créé')
         new_round_id = TournamentCtrlr.get_new_round_id(
             self, new_round, tournament_id)
@@ -234,7 +240,7 @@ class TournamentCtrlr:
         r_matches_id_list = TournamentCtrlr.create_first_r_matches_list(
             self, tournament_id, round_id)
         # start round and load start_date_and_time into database
-        TournamentCtrlr.set_start_date_and_time(self, tournament_id, round_id)
+        RoundCtrlr.set_start_date_and_time(self, tournament_id, round_id)
         return round_id
 
     def create_next_round(self, tournament_id):
@@ -245,14 +251,12 @@ class TournamentCtrlr:
             doc_id=tournament_id))['t_round_qty']
         if len(Tournament.tournament_rounds_id_list) < tournament_rounds_qty:
             r_matches_id_list = []
-            new_round = RoundCtrlr.create_new_round(
-                self,
-                tournament_id,
-                r_matches_id_list,
-                round_id=0,
-                end_date_time=0,
-                start_date_time=0,
-            )
+            new_round = RoundCtrlr.create_new_round(self,
+                                                    tournament_id,
+                                                    r_matches_id_list,
+                                                    round_id=0,
+                                                    end_date_time=0,
+                                                    start_date_time=0,)
             print(new_round.round_name + ' créé')
             new_round_id = TournamentCtrlr.get_new_round_id(
                 self, new_round, tournament_id)
@@ -261,7 +265,7 @@ class TournamentCtrlr:
             r_matches_id_list = TournamentCtrlr.create_next_round_matches_list(
                 self, tournament_id, round_id)
             # start round
-            TournamentCtrlr.set_start_date_and_time(
+            RoundCtrlr.set_start_date_and_time(
                 self, tournament_id, round_id)
         else:
             TournamentViews.display_rounds_list_full()
@@ -277,16 +281,8 @@ class TournamentCtrlr:
             self, Tournament.tournament_rounds_id_list, tournament_id)
         return new_round_id
 
-    def set_start_date_and_time(self, tournament_id, round_id):
-        """Set startdate-and-time."""
-        RoundViews.display_round_date_time_start()
-        self.start_date_time = RoundCtrlr.start_round(self)
-        RoundCtrlr.update_start_date_and_time(
-            self, tournament_id, self.start_date_time, round_id)
-        print(self.start_date_time)
-
     def create_first_r_matches_list(self, tournament_id, round_id):
-        """Create matches for first round."""
+        """Create matches for tournament's first round."""
         Round.r_matches_id_list = []
         rank_sorted_p_list = TournamentCtrlr.sort_tournament_players_list_by_rank(
             self, tournament_id
@@ -316,7 +312,7 @@ class TournamentCtrlr:
         Player.players_db = db.table('players_db')
 
         # get the list of players to be sorted
-        tournament_players_id_list = TournamentCtrlr.get_tournament_players_id_list(
+        tournament_players_id_list = TournamentCtrlr.get_tourney_players_id_list(
             self, tournament_id)
         t_full_players_list = []
         for pl_id in tournament_players_id_list:  # doc_ids
@@ -353,6 +349,53 @@ class TournamentCtrlr:
         next_round_p_pairs_list.clear()
         return Round.r_matches_id_list
 
+    def compare_matches_p_pairs(self, tournament_id):
+        """Prepare and check players pairs for next rounds."""
+        next_round_p_pairs_list = []  # list of next matches pairs of players
+
+        points_sorted_p_id_list = TournamentCtrlr.sort_t_players_id_list_by_points(
+            self, tournament_id)
+        previous_pairs_list = TournamentCtrlr.create_prev_matches_players_id_list(
+            self, tournament_id)
+        next_round_p_pairs_list = TournamentCtrlr.test_players_pairs(
+            self, points_sorted_p_id_list, previous_pairs_list)
+        previous_pairs_list.clear()
+        points_sorted_p_id_list.clear()
+        return next_round_p_pairs_list
+
+    def test_players_pairs(self, points_sorted_p_id_list, previous_pairs_list):
+        """Test players pairs to get uniq pairs of players."""
+        next_round_p_pairs_list = []
+        increment = 1
+        while len(points_sorted_p_id_list) > 0:
+            testing_pair = TournamentCtrlr.create_test_players_pair(
+                self, increment, points_sorted_p_id_list
+            )
+            if testing_pair in previous_pairs_list:
+                if len(points_sorted_p_id_list) < 4:
+                    next_round_p_pairs_list.append(testing_pair)
+                    return next_round_p_pairs_list
+                else:
+                    increment += 1
+                    testing_pair = TournamentCtrlr.create_test_players_pair(
+                        self, increment, points_sorted_p_id_list
+                    )
+            else:
+                # UNIQUE pair of players to be added to next round matches
+                next_round_p_pairs_list.append(testing_pair)
+                # update points_sorted_p_id_list (avoid re-testing players)
+                del points_sorted_p_id_list[0]
+                del points_sorted_p_id_list[increment - 1]
+                if len(points_sorted_p_id_list) > 0:
+                    # new testing_pair:
+                    increment = 1
+                    testing_pair = TournamentCtrlr.create_test_players_pair(
+                        self, increment, points_sorted_p_id_list
+                    )
+                else:
+                    return next_round_p_pairs_list
+        return next_round_p_pairs_list
+
     def sort_t_players_id_list_by_points(self, tournament_id):
         """Sort tournament players list by rank and total points."""
         rank_sorted_p_list = TournamentCtrlr.sort_tournament_players_list_by_rank(
@@ -367,10 +410,10 @@ class TournamentCtrlr:
         rank_sorted_p_list.clear()
         return points_sorted_p_id_list  # players'doc_ids
 
-    def create_test_players_pair(self, i, points_sorted_p_id_list):
+    def create_test_players_pair(self, increment, points_sorted_p_id_list):
         """Create pair of players to have its uniqueness tested."""
         test_pair = [points_sorted_p_id_list[0],
-                     points_sorted_p_id_list[i]]
+                     points_sorted_p_id_list[increment]]
         return test_pair
 
     def create_prev_matches_players_id_list(self, tournament_id):
@@ -400,7 +443,7 @@ class TournamentCtrlr:
             rd_match_id = (Round.rounds_db.get(doc_id=item)
                            )['rnd_matches_list']
             rd_match_id_list.append(rd_match_id)
-        del rd_match_id_list[-1]  # del empty list (new round)
+        del rd_match_id_list[-1]
         i = len(rd_match_id_list)
         id_matches_list = []
         for j in range(0, i):
@@ -408,68 +451,19 @@ class TournamentCtrlr:
                 id_matches_list.append(k)
         return id_matches_list
 
-    def compare_matches_p_pairs(self, tournament_id):
-        """Prepare and check players pairs to get uniq players players."""
-        points_sorted_p_id_list = TournamentCtrlr.sort_t_players_id_list_by_points(
-            self, tournament_id)
-        next_round_p_pairs_list = []  # list of next matches pairs of players
-        previous_pairs_list = TournamentCtrlr.create_prev_matches_players_id_list(
-            self, tournament_id)
-        i = 1
-        while len(points_sorted_p_id_list) > 0:
-            testing_pair = TournamentCtrlr.create_test_players_pair(
-                self, i, points_sorted_p_id_list
-            )
-            if testing_pair in previous_pairs_list:
-                if len(points_sorted_p_id_list) < 4:
-                    next_round_p_pairs_list.append(testing_pair)
-                    return next_round_p_pairs_list
-                else:
-                    i += 1
-                    testing_pair = TournamentCtrlr.create_test_players_pair(
-                        self, i, points_sorted_p_id_list
-                    )
-            else:
-                # UNIQUE pair of players to be added to next round matches
-                next_round_p_pairs_list.append(testing_pair)
-
-                # update points_sorted_p_id_list (avoid re-testing players)
-                del points_sorted_p_id_list[0]
-                del points_sorted_p_id_list[i - 1]
-
-                if len(points_sorted_p_id_list) > 0:
-                    # new testing_pair:
-                    i = 1
-                    testing_pair = TournamentCtrlr.create_test_players_pair(
-                        self, i, points_sorted_p_id_list
-                    )
-                else:
-                    return next_round_p_pairs_list
-        previous_pairs_list.clear()
-        points_sorted_p_id_list.clear()
-        return next_round_p_pairs_list
-
-    def closing_this_round(self, tournament_id, round_id):
-        """Close current round by adding round_end_date_time."""
-        RoundViews.display_round_date_time_end()
-        end_date_time = RoundCtrlr.close_round(self,)
-        Round.update_round_end_date_time(self, tournament_id, round_id,
-                                         end_date_time)
-        print(end_date_time)
-        return end_date_time
-
-    def closing_a_round(self):
-        """Close any round."""
+    def closing_a_tournament_round(self):
+        """Close any open round."""
         tournament_id = TournamentCtrlr.request_tournament_id(self)
         if tournament_id == 0:
             pass
         else:
             round_id = TournamentCtrlr.request_round_id(self, tournament_id)
-            round_end = TournamentCtrlr.get_round_end(self, tournament_id, round_id)
-            if round_end > 0:
+            round_status = TournamentCtrlr.get_round_end(self, tournament_id,
+                                                         round_id)
+            if round_status != 0:  # round is closed if status != 0
                 TournamentViews.display_round_already_closed()
             else:
-                end_date_time = TournamentCtrlr.closing_this_round(
+                end_date_time = RoundCtrlr.closing_this_round(
                     self, tournament_id, round_id)
                 return end_date_time
 
@@ -477,8 +471,9 @@ class TournamentCtrlr:
         """Check if round already closed."""
         db = TinyDB('db' + str(tournament_id) + '.json')
         Round.rounds_db = db.table('rounds_db')
-        round_end = (Round.rounds_db.get(doc_id=round_id))['end_datentime']
-        return round_end
+        round_end_date_time = (Round.rounds_db.get(doc_id=round_id)
+                               )['end_datentime']
+        return round_end_date_time
 
     def loging_this_r_scores(self, tournament_id, round_id):
         """Enter matches scores of current round."""
@@ -508,26 +503,19 @@ class TournamentCtrlr:
 
     def check_existing_scores(self, tournament_id, round_id):
         """Makes the sum of a round's matches scores
-        to check if scores are already input (sum =0 when no match)
+        to check if scores are already input (sum = 0 when no match).
         """
         db = TinyDB('db' + str(tournament_id) + '.json')
         Round.rounds_db = db.table('rounds_db')
         Match.matches_db = db.table('matches_db')
-        Player.players_db = db.table('players_db')
+        matches_id_list = []
+        scores_list = []
 
-        # check if scores are already updated :
         round_matches_id = ((Round.rounds_db.get(
             doc_id=round_id))['rnd_matches_list'])
-        matches_id_list = []
         for m_id in round_matches_id:
             matches_id_list.append(m_id)
-
-        matches_list = []
-        scores_list = []
         for m in matches_id_list:
-            a_match = Match.matches_db.get(doc_id=m)
-            matches_list.append(a_match)
-
             score_pl1 = Match.matches_db.get(doc_id=m)['score_player1']
             scores_list.append(score_pl1)
             score_pl2 = Match.matches_db.get(doc_id=m)['score_player2']
@@ -536,14 +524,15 @@ class TournamentCtrlr:
         return scores_sum
 
     def log_a_round_scores(self):
-        """Enter the scores of a round.
+        """Enter the scores of a round (if closed).
         Propose overwriting (or not) existing scores.
         """
         tournament_id = TournamentCtrlr.request_tournament_id(self)
         if tournament_id > 0:
             round_id = TournamentCtrlr.request_round_id(self, tournament_id)
-            round_end = TournamentCtrlr.get_round_end(self, tournament_id, round_id)
-            if round_end > 0:
+            round_status = TournamentCtrlr.get_round_end(self, tournament_id,
+                                                         round_id)
+            if round_status != 0:  # round is closed when status != 0
                 scores_sum = TournamentCtrlr.check_existing_scores(
                     self, tournament_id, round_id)
                 if scores_sum > 0:
@@ -575,9 +564,8 @@ class TournamentCtrlr:
         tournament_name = input()
         if tournament_name in t_name_list:
             Thetournmt = Query()
-            chosen_tournament = (Tournament.all_tournaments_db.get(
-                Thetournmt.t_name == tournament_name))
-            tournament_id = chosen_tournament['t_id']
+            tournament_id = (Tournament.all_tournaments_db.get(
+                Thetournmt.t_name == tournament_name))['t_id']
             return tournament_id
         else:
             TournamentViews.choice_unavailable()
@@ -600,8 +588,8 @@ class TournamentCtrlr:
         RoundViews.ask_round_name()
         round_name_req = input()
         Theround = Query()
-        round_id = (Round.rounds_db.get(Theround.r_name == round_name_req)
-                    )['r_id']
+        round_req = Round.rounds_db.get(Theround.r_name == round_name_req)
+        round_id = round_req['r_id']
         return round_id
 
     def ask_player1_score(self, tournament_id, player1_id, player2_id):

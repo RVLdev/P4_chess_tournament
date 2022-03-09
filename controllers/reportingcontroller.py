@@ -13,12 +13,11 @@ class ReportingCtrlr:
     def __init__(self):
         pass
 
-    """ List of all participants
-    1/ by alphabetical order
-    2/ by ranking
-    """
     def display_all_players_reporting(self):
-        """Display all players sorted by alphabetical order or by rank"""
+        """Display all players sorted by :
+        1/ alphabetical order
+        2/ ranking.
+        """
         db_all_t = TinyDB('db_all_t.json')
         Player.all_players_db = db_all_t.table('all_players_db')
         PlayerCtrlr.update_players_points_in_db_all(self)
@@ -40,7 +39,8 @@ class ReportingCtrlr:
             time.sleep(3)
         else:
             ReportingViews.display_all_players_by_rank()
-            ReportingCtrlr.show_all_players_ranking_order(self, all_players_list)
+            ReportingCtrlr.show_all_players_ranking_order(self,
+                                                          all_players_list)
         time.sleep(3)
 
     def show_all_players_alphabet_order(self, all_players_list):
@@ -67,13 +67,13 @@ class ReportingCtrlr:
             pl_firstname = (Player.all_players_db.get(
                 doc_id=id))['p_firstname']
             pl_rk = (Player.all_players_db.get(doc_id=id))['p_rank']
-            print(pl_name + ' ' + pl_firstname + '- classement: ' + str(pl_rk))
+            print(pl_name + ' ' + pl_firstname + ' classement: ' + str(pl_rk))
 
-    """ List of all players of ONE tournament
-    1/ by alphabetical order
-    2/ by ranking
-    """
     def display_tournament_players(self):
+        """Display all players of ONE tournament sorted by :
+        1/ alphabetical order
+        2/ ranking.
+        """
         ReportingViews.one_tournament_players_list()
         tournament_id = TournamentCtrlr.request_tournament_id(self)
         if tournament_id == 0:
@@ -97,11 +97,12 @@ class ReportingCtrlr:
                     self, tournament_players_list)
                 # details :
                 ReportingViews.display_all_players_by_rank_details()
-                for j in rank_sorted_t_players_list:
-                    print(j)
+                for sorted_player in rank_sorted_t_players_list:
+                    print(sorted_player)
             time.sleep(3)
 
     def get_one_tourney_players_list(self, tournament_id):
+        """ Get the players list of one tournement."""
         db = TinyDB('db' + str(tournament_id) + '.json')
         Tournament.tournaments_db = db.table('tournaments_db')
         Player.players_db = db.table('players_db')
@@ -117,7 +118,8 @@ class ReportingCtrlr:
             tournament_players_list.append(tournament_pl)
         return tournament_players_list
 
-    def show_one_tourney_players_alphabet_order(self, tournament_players_list):
+    def show_one_tourney_players_alphabet_order(self,
+                                                tournament_players_list):
         """Display one tournament's players sorted by alphabetical order."""
         players_name_list = []
         for i in range(0, len(tournament_players_list)):
@@ -140,15 +142,15 @@ class ReportingCtrlr:
         time.sleep(3)
         return rank_sorted_t_players_list
 
-    """ List of all tournaments """
     def display_all_tournaments(self):
+        """Display all tournaments list and details."""
         db_all_t = TinyDB('db_all_t.json')
         Tournament.all_tournaments_db = db_all_t.table('all_tournaments_db')
         ReportingViews.all_tournaments_list()
         ReportingViews.display_tournaments_list()
 
-        for t in Tournament.all_tournaments_db:
-            print(t['t_name'])
+        for tourney in Tournament.all_tournaments_db:
+            print(tourney['t_name'])
         time.sleep(2)
         ReportingViews.display_tournaments_list_details()
         tournaments_id_list = []
@@ -161,8 +163,8 @@ class ReportingCtrlr:
             print(t_details)
         time.sleep(3)
 
-    """ List of all rounds of ONE tournament """
     def tournament_all_rounds(self):
+        """Display the list and details of one tournament's players."""
         ReportingViews.one_tournament_rounds_list()
         tournament_id = TournamentCtrlr.request_tournament_id(self)
         if tournament_id == 0:
@@ -185,12 +187,12 @@ class ReportingCtrlr:
             time.sleep(2)
 
             ReportingViews.chosen_t_rounds_details()
-            for t in (t_rounds_list):
-                print(t)
+            for each_round in (t_rounds_list):
+                print(each_round)
             time.sleep(3)
 
-    """ List of all matches of ONE tournament """
     def tournament_all_matches(self):
+        """Display one tournament's list of matches."""
         ReportingViews.one_tournament_matches_list()
         tournament_id = TournamentCtrlr.request_tournament_id(self)
         if tournament_id == 0:
@@ -204,8 +206,7 @@ class ReportingCtrlr:
             t_rounds_id_list = (chosen_tournament['t_rounds_list'])
 
             if len(t_rounds_id_list) < 1:
-                print("Aucun tour n'a été lancé pour ce tournoi")
-                pass
+                ReportingViews.display_no_round_launched_this_tourney()
             else:
                 matches_id_list = ReportingCtrlr.get_tourney_matches_id_list(
                     self, tournament_id, t_rounds_id_list, matches_id_list)
@@ -214,7 +215,8 @@ class ReportingCtrlr:
                     self, tournament_id, matches_id_list)
             time.sleep(3)
 
-    def get_tourney_matches_id_list(self, tournament_id, t_rounds_id_list, matches_id_list):
+    def get_tourney_matches_id_list(self, tournament_id, t_rounds_id_list,
+                                    matches_id_list):
         """Get the list of one tournament matches identifiers."""
         db = TinyDB('db' + str(tournament_id) + '.json')
         Round.rounds_db = db.table('rounds_db')
