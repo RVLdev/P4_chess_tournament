@@ -35,7 +35,7 @@ Lancer l'interface (python p4_interface.py). Le menu du gestionnaire s'affiche.
 
 L'utilisateur lance/effectue une action en saisissant le numéro correspondant.
 
-Pour le stockage/la sauvegarde, le programme génère des fichiers .json, à la racine du projet.
+Pour le stockage/la sauvegarde, le programme génère des fichiers .json, à la racine du projet : une sauvegarde globale pour les tournois et les joueurs (db_all_t.json) et une sauvegarde pour tous les éléments de chaque tournoi (tournoi, joueurs du tournoi, tours du tournoi, matchs du tournoi), nommée dbx.json où x = identifiant du tournoi.
 
 La dernière option du menu permet de quitter le programme de gestion de tournois d'échecs.
 
