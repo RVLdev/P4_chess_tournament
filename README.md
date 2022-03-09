@@ -3,6 +3,7 @@
 DESCRIPTION
 
 Projet 4 du parcours OpenClassrooms "Developpeur d'appli Python" : réalisation d'un programme, hors ligne, de gestion de tournois d'échecs.
+L'utilisateur peut créer un tournoi, ajouter des joueurs, lancer un tour, le clôturer, saisir les scores des joueurs, mettre à jour le classement, consulter quelques statistiques et sauvegarder le programme à partir du menu ainsi qu'entre 2 actions de sa part.
 
 PREALABLES & DEROULEMENT
 
