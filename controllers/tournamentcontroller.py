@@ -288,9 +288,9 @@ class TournamentCtrlr:
             self, tournament_id
         )
         matches_qty = len(rank_sorted_p_list) / 2
-        for i in range(0, int(matches_qty)):
-            match_player1 = rank_sorted_p_list[i]['p_id']
-            match_player2 = rank_sorted_p_list[i + int(matches_qty)]['p_id']
+        for numbr in range(0, int(matches_qty)):
+            match_player1 = rank_sorted_p_list[numbr]['p_id']
+            match_player2 = rank_sorted_p_list[numbr + int(matches_qty)]['p_id']
             # create a match and get back its id
             new_m_id = MatchCtrlr.create_new_match(self,
                                                    tournament_id,
@@ -331,9 +331,9 @@ class TournamentCtrlr:
         next_round_p_pairs_list = TournamentCtrlr.compare_matches_p_pairs(
             self, tournament_id)
         matches_qty = len(next_round_p_pairs_list)
-        for i in range(0, int(matches_qty)):
-            match_player1 = next_round_p_pairs_list[i][0]  # player1 doc_id
-            match_player2 = next_round_p_pairs_list[i][1]
+        for numbr in range(0, int(matches_qty)):
+            match_player1 = next_round_p_pairs_list[numbr][0]  # player1 doc_id
+            match_player2 = next_round_p_pairs_list[numbr][1]
             new_m_id = MatchCtrlr.create_new_match(
                 self,
                 tournament_id,
@@ -429,9 +429,9 @@ class TournamentCtrlr:
             m_list.append(prev_matches)
         number_of_previous_matches = len(m_list)
         previous_pairs_list = []
-        for n in range(0, number_of_previous_matches):
-            previous_pairs_list.append([m_list[n]['chess_player1'],  # doc_id
-                                        m_list[n]['chess_player2']])
+        for each_numbr in range(0, number_of_previous_matches):
+            previous_pairs_list.append([m_list[each_numbr]['chess_player1'],
+                                        m_list[each_numbr]['chess_player2']])
         return previous_pairs_list
 
     def get_previous_matches_id_list(self, tournament_id):
@@ -444,11 +444,11 @@ class TournamentCtrlr:
                            )['rnd_matches_list']
             rd_match_id_list.append(rd_match_id)
         del rd_match_id_list[-1]
-        i = len(rd_match_id_list)
+        len_list = len(rd_match_id_list)
         id_matches_list = []
-        for j in range(0, i):
-            for k in rd_match_id_list[j]:
-                id_matches_list.append(k)
+        for number in range(0, len_list):
+            for m_id in rd_match_id_list[number]:
+                id_matches_list.append(m_id)
         return id_matches_list
 
     def closing_a_tournament_round(self):
@@ -483,10 +483,10 @@ class TournamentCtrlr:
         r_matches_id_list = (Round.rounds_db.get(doc_id=round_id)
                              )['rnd_matches_list']
         matches_number = len(r_matches_id_list)
-        for i in range(0, int(matches_number)):
-            player1_id = (Match.matches_db.get(doc_id=r_matches_id_list[i])
+        for numbr in range(0, int(matches_number)):
+            player1_id = (Match.matches_db.get(doc_id=r_matches_id_list[numbr])
                           )['chess_player1']
-            player2_id = (Match.matches_db.get(doc_id=r_matches_id_list[i])
+            player2_id = (Match.matches_db.get(doc_id=r_matches_id_list[numbr])
                           )['chess_player2']
             player1_score = TournamentCtrlr.ask_player1_score(
                 self, tournament_id, player1_id, player2_id
@@ -497,7 +497,7 @@ class TournamentCtrlr:
             TournamentCtrlr.update_player_points_qty(
                 self, player1_id, player2_id, player1_score, player2_score)
             # update matches_db
-            match_id = r_matches_id_list[i]
+            match_id = r_matches_id_list[numbr]
             Match.update_players_scores(self, tournament_id, match_id,
                                         player1_score, player2_score)
 
@@ -582,15 +582,20 @@ class TournamentCtrlr:
             Thetournmt.t_id == tournament_id))['t_rounds_list']
 
         TournamentViews.display_t_rounds_list()
+        rounds_names_list = []
         for rd_id in rounds_id_list:
             round_name = (Round.rounds_db.get(doc_id=rd_id))['r_name']
             print(round_name)
+            rounds_names_list.append(round_name)
         RoundViews.ask_round_name()
         round_name_req = input()
-        Theround = Query()
-        round_req = Round.rounds_db.get(Theround.r_name == round_name_req)
-        round_id = round_req['r_id']
-        return round_id
+        if round_name_req not in rounds_names_list:
+            TournamentViews.choice_unavailable()
+        else:
+            Theround = Query()
+            round_req = Round.rounds_db.get(Theround.r_name == round_name_req)
+            round_id = round_req['r_id']
+            return round_id
 
     def ask_player1_score(self, tournament_id, player1_id, player2_id):
         """Get player1's score."""

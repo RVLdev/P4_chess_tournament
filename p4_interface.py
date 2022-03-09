@@ -2,6 +2,7 @@ import sys
 from controllers.tournamentcontroller import TournamentCtrlr
 from controllers.playercontroller import PlayerCtrlr
 from controllers.reportingcontroller import ReportingCtrlr
+from controllers.roundcontroller import RoundCtrlr
 from controllers.save_n_loadcontroller import Save_and_load_Ctrlr
 from views.interfaceviews import InterfaceView
 from views.save_n_loadviews import Save_and_load_Views
@@ -109,7 +110,7 @@ class InterfaceMenu:
         InterfaceView.this_round_closing()
         closing_r = input()
         if closing_r == 'OUI':
-            TournamentCtrlr.closing_this_round(self, tournament_id, round_id)
+            RoundCtrlr.closing_this_round(self, tournament_id, round_id)
             self.suggest_saving()
             self.log_this_rd_scores(tournament_id, round_id)
         else:

@@ -132,8 +132,8 @@ class PlayerCtrlr:
                                           pl_name, pl_firstname,
                                           oneplayer_pts_list):
         """Get one player's points in all tournaments"""
-        for t in range(1, (length_tournaments_list + 1)):
-            db = TinyDB('db' + str(t) + '.json')
+        for tourn in range(1, (length_tournaments_list + 1)):
+            db = TinyDB('db' + str(tourn) + '.json')
             Theplayer = Query()
             Player.players_db = db.table('players_db')
             one_player = (Player.players_db.get(

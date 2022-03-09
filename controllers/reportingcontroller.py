@@ -46,8 +46,8 @@ class ReportingCtrlr:
     def show_all_players_alphabet_order(self, all_players_list):
         """Display all players sorted by alphabetical order."""
         players_name_list = []
-        for i in range(0, len(all_players_list)):
-            players_name_list.append(all_players_list[i]['p_name'])
+        for numbr in range(0, len(all_players_list)):
+            players_name_list.append(all_players_list[numbr]['p_name'])
         players_name_list.sort
         print(players_name_list)
         time.sleep(2)
@@ -122,8 +122,8 @@ class ReportingCtrlr:
                                                 tournament_players_list):
         """Display one tournament's players sorted by alphabetical order."""
         players_name_list = []
-        for i in range(0, len(tournament_players_list)):
-            players_name_list.append(tournament_players_list[i]['p_name'])
+        for numbr in range(0, len(tournament_players_list)):
+            players_name_list.append(tournament_players_list[numbr]['p_name'])
         players_name_list.sort
         print(players_name_list)
         time.sleep(3)
@@ -135,9 +135,9 @@ class ReportingCtrlr:
             tournament_players_list, key=lambda k: k['p_rank'])
         pl_list = (len(rank_sorted_t_players_list))
         players_name_list = []
-        for j in range(0, pl_list):
+        for pl in range(0, pl_list):
             players_name_list.append(
-                rank_sorted_t_players_list[j]['p_name'])
+                rank_sorted_t_players_list[pl]['p_name'])
         print(players_name_list)
         time.sleep(3)
         return rank_sorted_t_players_list
